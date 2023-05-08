@@ -69,7 +69,7 @@ _voteSetting
         uint256 size = id - 1;
         mapping(uint256=> DAO) storage _daostorage = daoStorage;
         daolist = new DAO[](size); 
-        for(uint256 i = 0; i > size; ++i) {
+        for(uint256 i = 0; i < size; ++i) {
             daolist[i] = _daostorage[i];
         }
     }
