@@ -13,13 +13,13 @@ contract DaoFactoryTest is Test {
     uint256 constant VOTING_PERIOD = 10;
     uint256 constant QUORUM_PERIOD = 10;
     uint256 constant QUORUM_PERCENTAGE = 1; /// 1 %
-    string constant DAO_NAME = "GRAND OPENING";
-    uint256 constant MXIMUM_SUPPLY = 10000;
+    string constant DAO_NAME = "Suprem3 DAO";
+    uint256 constant MAXIMUM_SUPPLY = 10000;
     string constant VOTE_NAME = "GRAND OPENING VOTES";
     string constant SYMBOL = "GOV";
     string constant URI = "ipfs://metadata.json";
     
-    uint256[4]  GOVERANCE_SETTING = [MIN_DELAY, VOTING_DELAY, VOTING_PERIOD, QUORUM_PERIOD];
+    uint256[4]  GOVERNANCE_SETTING = [MIN_DELAY, VOTING_DELAY, VOTING_PERIOD, QUORUM_PERIOD];
     string[3]  VOTTING_SETTING = [VOTE_NAME, SYMBOL, URI];
 
     struct DAO {
@@ -37,7 +37,7 @@ contract DaoFactoryTest is Test {
     }
 
     function testCreate() public {
-        daoFactory.create(GOVERANCE_SETTING, DAO_NAME, msg.sender, MXIMUM_SUPPLY, VOTTING_SETTING);
+        daoFactory.create(GOVERNANCE_SETTING, DAO_NAME, msg.sender, MAXIMUM_SUPPLY, VOTTING_SETTING);
         (string memory name, address dao, address vote, uint256 createdTime) = daoFactory.daoStorage(1);
         uint256 len = (daoFactory.fetchDaoStoage()).length;
         console.log("name", name);
@@ -49,6 +49,6 @@ contract DaoFactoryTest is Test {
 
     function testFailCreate() public {
         vm.prank(ALICE);
-        daoFactory.create(GOVERANCE_SETTING, DAO_NAME, msg.sender, MXIMUM_SUPPLY, VOTTING_SETTING);
+        daoFactory.create(GOVERNANCE_SETTING, DAO_NAME, msg.sender, MAXIMUM_SUPPLY, VOTTING_SETTING);
     }
 }

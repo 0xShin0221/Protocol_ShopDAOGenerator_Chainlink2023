@@ -21,5 +21,5 @@ forge install
 ```
 3. **Test**
 ``` 
-forge test --vvvv
+forge test -vvvv
 ```
