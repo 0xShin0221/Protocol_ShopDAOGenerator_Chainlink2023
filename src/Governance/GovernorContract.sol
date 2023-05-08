@@ -21,13 +21,14 @@ contract GovernorContract is
   bytes32 constant public BRAND_MANAGER_ROLE = keccak256(abi.encode("BRAND_MANAGER_ROLE"));
 
   constructor(
+    string memory _daoName,
     IVotes _token,
     TimelockController _timelock,
     uint256 _votingDelay,
     uint256 _votingPeriod,
     uint256 _quorumPercentage
   )
-    Governor("GovernorContract")
+    Governor(_daoName)
     GovernorSettings(
       _votingDelay, /* 1 block */ // voting delay
       _votingPeriod, // 45818, /* 1 week */ // voting period

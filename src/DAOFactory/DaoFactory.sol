@@ -59,7 +59,7 @@ _voteSetting
     {
         address vote = Clones.clone(VOTE_ADDRESS);
         GovernanceTimeLock governanceTimeLock = new GovernanceTimeLock(_goveranceSetting[0], proposerList, executorList, _owner);
-        GovernorContract dao = new GovernorContract(IVotes(vote), governanceTimeLock, _goveranceSetting[1], _goveranceSetting[2], _goveranceSetting[3]);
+        GovernorContract dao = new GovernorContract(_daoName,IVotes(vote), governanceTimeLock, _goveranceSetting[1], _goveranceSetting[2], _goveranceSetting[3]);
         daoStorage[id] = (DAO(_daoName, address(dao), vote, block.timestamp));
         IGoveranceNFTs(vote).init(_owner, _maximumSupply, _voteSetting[0], _voteSetting[1], _voteSetting[2]);
         emit Create(id++, _daoName, address(dao), vote, block.timestamp);
