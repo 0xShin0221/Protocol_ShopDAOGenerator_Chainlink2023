@@ -13,7 +13,7 @@ contract DaoFactoryTest is Test {
     uint256 constant VOTING_PERIOD = 10;
     uint256 constant QUORUM_PERIOD = 10;
     uint256 constant QUORUM_PERCENTAGE = 1; /// 1 %
-    string constant DAO_NAME = "GRAND OPENING";
+    string constant DAO_NAME = "Suprem3 DAO";
     uint256 constant MAXIMUM_SUPPLY = 10000;
     string constant VOTE_NAME = "GRAND OPENING VOTES";
     string constant SYMBOL = "GOV";
