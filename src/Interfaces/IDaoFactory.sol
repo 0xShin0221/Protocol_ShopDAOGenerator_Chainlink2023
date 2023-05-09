@@ -11,9 +11,9 @@ interface IDaoFactory {
         string vote_symbol;
         string vote_URI;
         uint256 timelock_minDelay;
-        uint256 governor_votingDelay;
-        uint256 governor_votingPeriod;
-        uint256 governor_quorumPercentage;
+        uint256 governance_votingDelay;
+        uint256 governance_votingPeriod;
+        uint256 governance_quorumPercentage;
     }
 
 

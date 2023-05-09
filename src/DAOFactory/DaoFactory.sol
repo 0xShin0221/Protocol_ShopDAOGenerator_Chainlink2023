@@ -3,10 +3,14 @@ pragma solidity ^0.8.9;
 import "@openzeppelin/contracts/proxy/Clones.sol";
 import "@openzeppelin/contracts/access/AccessControl.sol";
 import "@openzeppelin/contracts/governance/utils/IVotes.sol";
+import "@openzeppelin/contracts/governance/TimelockController.sol";
 import "../Interfaces/IGoveranceNFTs.sol";
+import "../Interfaces/IGovernanceTimeLock.sol";
 import "../Governance/GovernorContract.sol";
 import "../Governance/GovernanceTimeLock.sol";
 import "../Interfaces/IDaoFactory.sol";
+
+
 contract DaoFactory is AccessControl, IDaoFactory {
 
     ///Constant
@@ -14,6 +18,7 @@ contract DaoFactory is AccessControl, IDaoFactory {
 
     /// Immutable
     address public immutable VOTE_ADDRESS; 
+    address public immutable TIMELOCK_ADDRESS; 
     
     /// Event
     event Create(uint256 indexed id, string name, address dao, address vote, uint256 createdTime);
@@ -21,16 +26,18 @@ contract DaoFactory is AccessControl, IDaoFactory {
     /// Varaable
     struct DAO {
         string name;
-        address dao;
         address vote;
+        address timelock;
+        address dao;
         uint256 createdTime;
     }
     mapping(uint256=> DAO) public daoStorage; 
     uint256 public id = 1;
     address[] public proposerList;
     address[] public executorList = [address(0)];
-    constructor(address _vote_address) {
+    constructor(address _vote_address, address _timeLock_address) {
         VOTE_ADDRESS = _vote_address;
+        TIMELOCK_ADDRESS = _timeLock_address;
         _grantRole(DEFAULT_ADMIN_ROLE, msg.sender);
         _grantRole(BRAND_MANAGER_ROLE, msg.sender);
     }
@@ -40,10 +47,11 @@ contract DaoFactory is AccessControl, IDaoFactory {
         onlyRole(BRAND_MANAGER_ROLE) 
     {
         address vote = Clones.clone(VOTE_ADDRESS);
-        GovernanceTimeLock governanceTimeLock = new GovernanceTimeLock(params.timelock_minDelay, proposerList, executorList, params.owner);
-        GovernorContract dao = new GovernorContract(params.daoName, IVotes(vote), governanceTimeLock, params.governor_votingDelay, params.governor_votingPeriod, params.governor_quorumPercentage);
-        daoStorage[id] = (DAO(params.daoName, address(dao), vote, block.timestamp));
+        address timeLock = Clones.clone(TIMELOCK_ADDRESS);
+        GovernorContract dao = new GovernorContract(params.daoName, IVotes(vote), TimelockController(payable(timeLock)), params.governance_votingDelay, params.governance_votingPeriod, params.governance_quorumPercentage);
+        daoStorage[id] = (DAO(params.daoName, vote, timeLock, address(dao), block.timestamp));
         IGoveranceNFTs(vote).init(params.owner, params.vote_maximumSupply, params.vote_name, params.vote_symbol, params.vote_URI);
+        IGovernanceTimeLock(timeLock).init(params.timelock_minDelay, proposerList, executorList, params.owner);
         emit Create(id++, params.daoName, address(dao), vote, block.timestamp);
     }
 

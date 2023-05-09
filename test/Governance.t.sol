@@ -13,7 +13,9 @@ contract Governance is Test, IDaoFactory {
 
     /// Immutable
     address public immutable OWNER;
-    
+    GovernanceTimeLock public immutable governanceTimeLock;
+    GovernanceNFTs public immutable governanceNFTs;
+
     /// Constant
     address constant ALICE = address(0x01);
     string constant DAO_NAME = "Suprem3 DAO";
@@ -22,9 +24,9 @@ contract Governance is Test, IDaoFactory {
     string constant VOTE_SYMBOL = "GOV";
     string constant VOTE_URI = "ipfs://metadata.json";
     uint256 constant TIMELOCK_MIN_DELAY = 3600; /// block.timestamp
-    uint256 constant GOVERRNOR_VOTING_DELAY = 0;
-    uint256 constant GOVERRNOR_VOTING_PERIOD = 3600; /// block.number
-    uint256 constant GOVERRNOR_QUORUM_PERCENTAGE = 100; /// 100 %
+    uint256 constant GOVERNANCE_VOTING_DELAY = 0;
+    uint256 constant GOVERNANCE_VOTING_PERIOD = 3600; /// block.number
+    uint256 constant GOVERNANCE_QUORUM_PERCENTAGE = 100; /// 100 %
     
     /// Event
     event ProposalCreated(
@@ -41,8 +43,19 @@ contract Governance is Test, IDaoFactory {
 
     /// Variable
     createParams daoParams;
-   
+    TargetContract public targetContract;
+    DaoFactory public daoFactory;
+    GovernorContract public governorInstance;
+    GovernanceNFTs public governanceNFTsInstance;
+    address[] public proposerList;
+    address[] public executorList = [address(0)];
     
+    /// Proposal setting
+    address[] targets = new address[](1);
+    uint256[] values = [0];
+    bytes[] calldatas = [abi.encodePacked(bytes4(keccak256(bytes("setValue(uint256)"))), bytes32(uint256(55)))];
+    string description = "NIKE JAKECT SHOULD BE LISTED ON SHAOPDAO";
+    bytes32 descriptionHash = keccak256(bytes(description));
     
     enum ProposalState {
         Pending,
@@ -54,15 +67,13 @@ contract Governance is Test, IDaoFactory {
         Expired,
         Executed
     }
-    /// Proposal setting
-    address[] targets = new address[](1);
-    uint256[] values = [0];
-    bytes[] calldatas = [abi.encodePacked(bytes4(keccak256(bytes("setValue(uint256)"))), bytes32(uint256(55)))];
-    string description = "NIKE JAKECT SHOULD BE LISTED ON SHAOPDAO";
-    bytes32 descriptionHash = keccak256(bytes(description));
+    
+
 
     constructor() {
         OWNER = msg.sender;
+        governanceNFTs = new GovernanceNFTs();
+        governanceTimeLock = new GovernanceTimeLock(TIMELOCK_MIN_DELAY, proposerList, executorList, OWNER);
         daoParams = createParams(
             DAO_NAME, 
             OWNER, 
@@ -71,54 +82,31 @@ contract Governance is Test, IDaoFactory {
             VOTE_SYMBOL, 
             VOTE_URI,    
             TIMELOCK_MIN_DELAY,
-            GOVERRNOR_VOTING_DELAY,
-            GOVERRNOR_VOTING_PERIOD,
-            GOVERRNOR_QUORUM_PERCENTAGE
+            GOVERNANCE_VOTING_DELAY,
+            GOVERNANCE_VOTING_PERIOD,
+            GOVERNANCE_QUORUM_PERCENTAGE
         );
     }
 
-
-
-
-
-
-    TargetContract public targetContract;
-    GovernanceNFTs public governanceNFTs;
-    DaoFactory public daoFactory;
-
-
-
-    
-    
-
-
-    GovernorContract public governorInstance;
-   
-   
-    GovernanceNFTs public governanceNFTsInstance;
-    GovernanceTimeLock public governanceTimeLockInstance;
-    
-
     function setUp() public {
-      
         vm.startPrank(OWNER); 
         targetContract = new TargetContract();
-        governanceNFTs = new GovernanceNFTs();
-        daoFactory = new DaoFactory(address(governanceNFTs));
+       
+        daoFactory = new DaoFactory(address(governanceNFTs), address(governanceTimeLock));
         daoFactory.create(daoParams);
-        (, address dao, address vote,) = daoFactory.daoStorage(1);
+        (, address vote, address timelock, address dao,) = daoFactory.daoStorage(1);
         governorInstance = GovernorContract(payable(dao));
         governanceNFTsInstance = GovernanceNFTs(payable(vote));
         governanceNFTsInstance.mint(OWNER, 2);
-        governanceTimeLockInstance = GovernanceTimeLock(payable(governorInstance.timelock()));
-        governanceTimeLockInstance.grantRole(governanceTimeLockInstance.PROPOSER_ROLE(), address(governorInstance));
-        
+        GovernanceTimeLock(payable(timelock)).grantRole(governanceTimeLock.PROPOSER_ROLE(), address(governorInstance));
+      
+   
         /// Proposal setting
         targets[0] = address(targetContract);
         vm.stopPrank(); 
     }
 
-    function testPropose() public returns (uint256 proposalId){
+    function testPropose() public returns (uint256 proposalId) {
         uint256 expectedProposalId = uint256(keccak256(abi.encode(targets, values, calldatas, keccak256(bytes(description)))));
         vm.prank(OWNER);  
         proposalId = governorInstance.propose(targets, values, calldatas, description);
@@ -139,7 +127,7 @@ contract Governance is Test, IDaoFactory {
     function testQueue() public {
         testVote();
         vm.startPrank(OWNER);   
-        vm.roll(GOVERRNOR_VOTING_PERIOD + 2); /// set up the the block number for queue
+        vm.roll(GOVERNANCE_VOTING_PERIOD + 2); /// set up the the block number for queue
         governorInstance.queue(targets, values, calldatas, descriptionHash);
     }
 
