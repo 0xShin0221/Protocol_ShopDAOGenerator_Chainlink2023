@@ -4,9 +4,13 @@ pragma solidity ^0.8.9;
 import "@openzeppelin/contracts/governance/TimelockController.sol";
 
 contract GovernanceTimeLock is TimelockController {
-    // minDelay is how long you have to wait before executing
-    // proposers is the list of addresses that can propose
-    // executors is the list of addresses that can execute
+    
+    /// Error
+    error AlreadtInit();
+    
+    /// Variable
+    bool private isInit;
+
     constructor(
         uint256 minDelay,
         address[] memory proposers,
@@ -21,6 +25,8 @@ contract GovernanceTimeLock is TimelockController {
         address owner
     ) external 
     {
+        if(isInit) revert AlreadtInit();
+        isInit = true;
         _setRoleAdmin(TIMELOCK_ADMIN_ROLE, TIMELOCK_ADMIN_ROLE);
         _setRoleAdmin(PROPOSER_ROLE, TIMELOCK_ADMIN_ROLE);
         _setRoleAdmin(EXECUTOR_ROLE, TIMELOCK_ADMIN_ROLE);
