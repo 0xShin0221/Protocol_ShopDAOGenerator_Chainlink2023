@@ -6,8 +6,8 @@ import "@openzeppelin/contracts/governance/utils/IVotes.sol";
 import "../Interfaces/IGoveranceNFTs.sol";
 import "../Governance/GovernorContract.sol";
 import "../Governance/GovernanceTimeLock.sol";
-
-contract DaoFactory is AccessControl {
+import "../Interfaces/IDaoFactory.sol";
+contract DaoFactory is AccessControl, IDaoFactory {
 
     ///Constant
     bytes32 constant public BRAND_MANAGER_ROLE = keccak256(abi.encode("BRAND_MANAGER_ROLE"));
@@ -34,35 +34,17 @@ contract DaoFactory is AccessControl {
         _grantRole(DEFAULT_ADMIN_ROLE, msg.sender);
         _grantRole(BRAND_MANAGER_ROLE, msg.sender);
     }
-    /*
-    _goveranceSetting
-        uint256 _minDelay,
-        uint256 _votingDelay,
-        uint256 _votingPeriod,
-        uint256 _quorumPercentage,
-_voteSetting
-        string calldata _voteName, 
-        string calldata _symbol, 
-        string calldata _shopDaoBaseURI 
 
-    */
-
-    function create(
-        uint256[4] calldata  _goveranceSetting,
-        string calldata _daoName, 
-        address _owner,
-        uint256 _maximumSupply,
-        string[3] calldata  _voteSetting
-    ) 
+    function create(createParams calldata params) 
         external 
         onlyRole(BRAND_MANAGER_ROLE) 
     {
         address vote = Clones.clone(VOTE_ADDRESS);
-        GovernanceTimeLock governanceTimeLock = new GovernanceTimeLock(_goveranceSetting[0], proposerList, executorList, _owner);
-        GovernorContract dao = new GovernorContract(_daoName,IVotes(vote), governanceTimeLock, _goveranceSetting[1], _goveranceSetting[2], _goveranceSetting[3]);
-        daoStorage[id] = (DAO(_daoName, address(dao), vote, block.timestamp));
-        IGoveranceNFTs(vote).init(_owner, _maximumSupply, _voteSetting[0], _voteSetting[1], _voteSetting[2]);
-        emit Create(id++, _daoName, address(dao), vote, block.timestamp);
+        GovernanceTimeLock governanceTimeLock = new GovernanceTimeLock(params.timelock_minDelay, proposerList, executorList, params.owner);
+        GovernorContract dao = new GovernorContract(params.daoName, IVotes(vote), governanceTimeLock, params.governor_votingDelay, params.governor_votingPeriod, params.governor_quorumPercentage);
+        daoStorage[id] = (DAO(params.daoName, address(dao), vote, block.timestamp));
+        IGoveranceNFTs(vote).init(params.owner, params.vote_maximumSupply, params.vote_name, params.vote_symbol, params.vote_URI);
+        emit Create(id++, params.daoName, address(dao), vote, block.timestamp);
     }
 
     function fetchDaoStoage() external view returns (DAO[] memory daolist) {
