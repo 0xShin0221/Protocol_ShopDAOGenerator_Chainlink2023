@@ -10,7 +10,7 @@ import "@chainlink/contracts/src/v0.8/automation/AutomationCompatible.sol";
  * @notice This contract is a demonstration of using Functions.
  * @notice NOT FOR PRODUCTION USE
  */
-contract AutomatedSalesConsumer is FunctionsClient, ConfirmedOwner, AutomationCompatibleInterface {
+contract SalesDistributorClient is FunctionsClient, ConfirmedOwner, AutomationCompatibleInterface {
   using Functions for Functions.Request;
 
   bytes public requestCBOR;
