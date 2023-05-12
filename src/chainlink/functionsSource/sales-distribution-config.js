@@ -38,7 +38,7 @@ const requestConfig = {
     apiUrl: process.env.SHOPDAO_G_API_URL ?? "",
   },
   // args can be accessed within the source code with `args[index]` (ie: args[0])
-  args: ["sales_distribution"],
+  args: ["chainlink/salesDistribution"],
   // expected type of the returned value
   expectedReturnType: ReturnType.string,
 };
