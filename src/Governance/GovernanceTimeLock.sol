@@ -6,10 +6,10 @@ import "@openzeppelin/contracts/governance/TimelockController.sol";
 contract GovernanceTimeLock is TimelockController {
     
     /// Error
-    error AlreadtInit();
+    error AlreadyInitialized();
     
     /// Variable
-    bool private isInit;
+    bool private isInitialized;
 
     constructor(
         uint256 minDelay,
@@ -25,8 +25,8 @@ contract GovernanceTimeLock is TimelockController {
         address owner
     ) external 
     {
-        if(isInit) revert AlreadtInit();
-        isInit = true;
+        if(isInitialized) revert AlreadyInitialized();
+        isInitialized = true;
         _setRoleAdmin(TIMELOCK_ADMIN_ROLE, TIMELOCK_ADMIN_ROLE);
         _setRoleAdmin(PROPOSER_ROLE, TIMELOCK_ADMIN_ROLE);
         _setRoleAdmin(EXECUTOR_ROLE, TIMELOCK_ADMIN_ROLE);

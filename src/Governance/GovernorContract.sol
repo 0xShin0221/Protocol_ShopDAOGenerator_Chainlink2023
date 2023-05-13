@@ -1,25 +1,29 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.9;
 
-import "@openzeppelin/contracts/governance/Governor.sol";
-import "@openzeppelin/contracts/governance/extensions/GovernorCountingSimple.sol";
-import "@openzeppelin/contracts/governance/extensions/GovernorVotes.sol";
-import "@openzeppelin/contracts/governance/extensions/GovernorVotesQuorumFraction.sol";
-import "@openzeppelin/contracts/governance/extensions/GovernorTimelockControl.sol";
-import "@openzeppelin/contracts/governance/extensions/GovernorSettings.sol";
+import "./customizedGovernor/GovernorC.sol";
+import "./customizedGovernor/extensions/GovernorCountingSimpleC.sol";
+import "./customizedGovernor/extensions/GovernorVotesC.sol";
+import "./customizedGovernor/extensions/GovernorTimelockControlC.sol";
+import "./customizedGovernor/extensions/GovernorSettingsC.sol";
+import "./customizedGovernor/extensions/GovernorVotesQuorumFractionC.sol";
 import "@openzeppelin/contracts/access/AccessControl.sol";
+
 contract GovernorContract is
-  Governor,
-  GovernorSettings,
-  GovernorCountingSimple,
-  GovernorVotes,
-  GovernorVotesQuorumFraction,
-  GovernorTimelockControl,
+  GovernorC,
+  GovernorSettingsC,
+  GovernorCountingSimpleC,
+  GovernorVotesC,
+  GovernorVotesQuorumFractionC,
+  GovernorTimelockControlC,
   AccessControl
 {
   ///Constant
   bytes32 constant public BRAND_MANAGER_ROLE = keccak256(abi.encode("BRAND_MANAGER_ROLE"));
-
+    
+  /// Variable
+  bool private isInitialized;
+  string private daoName;
   constructor(
     string memory _daoName,
     IVotes _token,
@@ -28,24 +32,52 @@ contract GovernorContract is
     uint256 _votingPeriod,
     uint256 _quorumPercentage
   )
-    Governor(_daoName)
-    GovernorSettings(
+    GovernorC(_daoName)
+    GovernorSettingsC(
       _votingDelay, /* 1 block */ // voting delay
       _votingPeriod, // 45818, /* 1 week */ // voting period
       0 // proposal threshold
     )
-    GovernorVotes(_token)
-    GovernorVotesQuorumFraction(_quorumPercentage)
-    GovernorTimelockControl(_timelock)
+    GovernorVotesC(_token)
+    GovernorVotesQuorumFractionC(_quorumPercentage)
+    GovernorTimelockControlC(_timelock)
   {
      _grantRole(DEFAULT_ADMIN_ROLE, msg.sender);
      _grantRole(BRAND_MANAGER_ROLE, msg.sender);
   }
 
+  function init(
+    string calldata _daoName,
+    IVotes _token,
+    TimelockController _timelock,
+    uint256 _votingDelay,
+    uint256 _votingPeriod,
+    uint256 _quorumPercentage
+  ) 
+    external 
+  {
+    if(isInitialized) revert AlreadyInitialized();
+    isInitialized = true;
+    _grantRole(DEFAULT_ADMIN_ROLE, msg.sender);
+    _grantRole(BRAND_MANAGER_ROLE, msg.sender);
+    initEIP712(_daoName, version());
+    _setVotingDelay(_votingDelay);
+    _setVotingPeriod(_votingPeriod);
+    _setProposalThreshold(0);
+    initGovernorVotes(_token);
+    _updateQuorumNumerator(_quorumPercentage);
+    _updateTimelock(_timelock);
+  }
+
+
+  function name() public view virtual override(IGovernor, GovernorC) returns (string memory) {
+      return daoName;
+  }
+
   function votingDelay()
     public
     view
-    override(IGovernor, GovernorSettings)
+    override(IGovernor, GovernorSettingsC)
     returns (uint256)
   {
     return super.votingDelay();
@@ -54,7 +86,7 @@ contract GovernorContract is
   function votingPeriod()
     public
     view
-    override(IGovernor, GovernorSettings)
+    override(IGovernor, GovernorSettingsC)
     returns (uint256)
   {
     return super.votingPeriod();
@@ -65,7 +97,7 @@ contract GovernorContract is
   function quorum(uint256 blockNumber)
     public
     view
-    override(IGovernor, GovernorVotesQuorumFraction)
+    override(IGovernor, GovernorVotesQuorumFractionC)
     returns (uint256)
   {
     return super.quorum(blockNumber);
@@ -74,7 +106,7 @@ contract GovernorContract is
   function getVotes(address account, uint256 blockNumber)
     public
     view
-    override(IGovernor, Governor)
+    override(IGovernor, GovernorC)
     returns (uint256)
   {
     return super.getVotes(account, blockNumber);
@@ -83,7 +115,7 @@ contract GovernorContract is
   function state(uint256 proposalId)
     public
     view
-    override(Governor, GovernorTimelockControl)
+    override(GovernorC, GovernorTimelockControlC)
     returns (ProposalState)
   {
     return super.state(proposalId);
@@ -94,14 +126,14 @@ contract GovernorContract is
     uint256[] memory values,
     bytes[] memory calldatas,
     string memory description
-  ) public override(Governor, IGovernor) returns (uint256) {
+  ) public override(GovernorC, IGovernor) returns (uint256) {
     return super.propose(targets, values, calldatas, description);
   }
 
   function proposalThreshold()
     public
     view
-    override(Governor, GovernorSettings)
+    override(GovernorC, GovernorSettingsC)
     returns (uint256)
   {
     return super.proposalThreshold();
@@ -113,7 +145,7 @@ contract GovernorContract is
     uint256[] memory values,
     bytes[] memory calldatas,
     bytes32 descriptionHash
-  ) internal override(Governor, GovernorTimelockControl) {
+  ) internal override(GovernorC, GovernorTimelockControlC) {
     super._execute(proposalId, targets, values, calldatas, descriptionHash);
   }
 
@@ -122,14 +154,14 @@ contract GovernorContract is
     uint256[] memory values,
     bytes[] memory calldatas,
     bytes32 descriptionHash
-  ) internal override(Governor, GovernorTimelockControl) returns (uint256) {
+  ) internal override(GovernorC, GovernorTimelockControlC) returns (uint256) {
     return super._cancel(targets, values, calldatas, descriptionHash);
   }
 
   function _executor()
     internal
     view
-    override(Governor, GovernorTimelockControl)
+    override(GovernorC, GovernorTimelockControlC)
     returns (address)
   {
     return super._executor();
@@ -138,7 +170,7 @@ contract GovernorContract is
   function supportsInterface(bytes4 interfaceId)
     public
     view
-    override(Governor, GovernorTimelockControl, AccessControl)
+    override(GovernorC, GovernorTimelockControlC, AccessControl)
     returns (bool)
   {
     return super.supportsInterface(interfaceId);
