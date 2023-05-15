@@ -9,6 +9,7 @@ import "../src/Votes/GovernanceNFTs.sol";
 import "../src/Governance/GovernorContract.sol";
 import "../src/Governance/GovernanceTimeLock.sol";
 import "../src/targetContract/TargetContract.sol";
+
 contract Governance is Test, IDaoFactory {
 
     /// Immutable
@@ -47,6 +48,7 @@ contract Governance is Test, IDaoFactory {
     DaoFactory public daoFactory;
     GovernorContract public governorInstance;
     GovernanceNFTs public governanceNFTsInstance;
+    GovernorContract public governorContract;
     address[] public proposerList;
     address[] public executorList = [address(0)];
     
@@ -68,12 +70,19 @@ contract Governance is Test, IDaoFactory {
         Executed
     }
     
-
-
     constructor() {
         OWNER = msg.sender;
         governanceNFTs = new GovernanceNFTs();
         governanceTimeLock = new GovernanceTimeLock(TIMELOCK_MIN_DELAY, proposerList, executorList, OWNER);
+        governorContract = new GovernorContract(
+            DAO_NAME, 
+            IVotes(governanceNFTs), 
+            TimelockController(payable(governanceTimeLock)), 
+            GOVERNANCE_VOTING_DELAY, 
+            GOVERNANCE_VOTING_PERIOD, 
+            GOVERNANCE_QUORUM_PERCENTAGE
+        );
+
         daoParams = createParams(
             DAO_NAME, 
             OWNER, 
@@ -91,8 +100,7 @@ contract Governance is Test, IDaoFactory {
     function setUp() public {
         vm.startPrank(OWNER); 
         targetContract = new TargetContract();
-       
-        daoFactory = new DaoFactory(address(governanceNFTs), address(governanceTimeLock));
+        daoFactory = new DaoFactory(address(governanceNFTs), address(governanceTimeLock), address(governorContract));
         daoFactory.create(daoParams);
         (, address vote, address timelock, address dao,) = daoFactory.daoStorage(1);
         governorInstance = GovernorContract(payable(dao));

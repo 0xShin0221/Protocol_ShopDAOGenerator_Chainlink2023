@@ -3,9 +3,11 @@ pragma solidity ^0.8.13;
 
 import "forge-std/Test.sol";
 import "forge-std/console.sol";
+import "../src/Governance/GovernorContract.sol";
+import "../src/Votes/GovernanceNFTs.sol";
 import "../src/Interfaces/IDaoFactory.sol";
 import "../src/DaoFactory/DaoFactory.sol";
-import "../src/Votes/GovernanceNFTs.sol";
+
 import "../src/Governance/GovernanceTimeLock.sol";
 contract DaoFactoryTest is Test, IDaoFactory {
     
@@ -13,7 +15,8 @@ contract DaoFactoryTest is Test, IDaoFactory {
     address public immutable OWNER;
     GovernanceTimeLock public immutable governanceTimeLock;
     GovernanceNFTs public immutable governanceNFTs;
-    
+    GovernorContract public immutable governorContract;
+
     /// Constant
     address constant ALICE = address(0x01);
     string constant DAO_NAME = "Suprem3 DAO";
@@ -37,6 +40,14 @@ contract DaoFactoryTest is Test, IDaoFactory {
         OWNER = msg.sender;
         governanceNFTs = new GovernanceNFTs();
         governanceTimeLock = new GovernanceTimeLock(TIMELOCK_MIN_DELAY, proposerList, executorList, OWNER);
+        governorContract = new GovernorContract(
+            DAO_NAME, 
+            IVotes(governanceNFTs), 
+            TimelockController(payable(governanceTimeLock)), 
+            GOVERNANCE_VOTING_DELAY, 
+            GOVERNANCE_VOTING_PERIOD, 
+            GOVERNANCE_QUORUM_PERCENTAGE
+        );
         daoParams = createParams(
             DAO_NAME, 
             OWNER, 
@@ -52,7 +63,7 @@ contract DaoFactoryTest is Test, IDaoFactory {
     }
 
     function setUp() public {
-        daoFactory = new DaoFactory(address(governanceNFTs), address(governanceTimeLock));
+        daoFactory = new DaoFactory(address(governanceNFTs), address(governanceTimeLock), address(governorContract));
     }
 
     function testCreate() public {
