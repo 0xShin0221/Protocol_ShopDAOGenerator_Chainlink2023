@@ -1,9 +1,10 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.9;
+pragma solidity ^0.8.7;
 
-import "./FunctionsClient.sol";
-import "@chainlink/contracts/src/v0.8/ConfirmedOwner.sol";
-import "@chainlink/contracts/src/v0.8/automation/AutomationCompatible.sol";
+import {Functions, FunctionsClient} from "./dev/functions/FunctionsClient.sol";
+// import "@chainlink/contracts/src/v0.8/dev/functions/FunctionsClient.sol"; // Once published
+import {ConfirmedOwner} from "@chainlink/contracts/src/v0.8/ConfirmedOwner.sol";
+import {AutomationCompatibleInterface} from "@chainlink/contracts/src/v0.8/automation/AutomationCompatible.sol";
 
 /**
  * @title Automated Functions SalesConsumer contract
@@ -45,28 +46,22 @@ contract SalesDistributorClient is FunctionsClient, ConfirmedOwner, AutomationCo
     fulfillGasLimit = _fulfillGasLimit;
     lastUpkeepTimeStamp = block.timestamp;
   }
-
   /**
    * @notice Generates a new Functions.Request. This pure function allows the request CBOR to be generated off-chain, saving gas.
-   * 
+   *
    * @param source JavaScript source code
    * @param secrets Encrypted secrets payload
    * @param args List of arguments accessible from within the source code
    */
-  function generateRequest (
+  function generateRequest(
     string calldata source,
     bytes calldata secrets,
-    Functions.Location secretsLocation,
     string[] calldata args
   ) public pure returns (bytes memory) {
     Functions.Request memory req;
     req.initializeRequest(Functions.Location.Inline, Functions.CodeLanguage.JavaScript, source);
     if (secrets.length > 0) {
-      if (secretsLocation == Functions.Location.Inline) {
-        req.addInlineSecrets(secrets);
-      } else {
-        req.addRemoteSecrets(secrets);
-      }
+      req.addRemoteSecrets(secrets);
     }
     if (args.length > 0) req.addArgs(args);
 
@@ -102,9 +97,7 @@ contract SalesDistributorClient is FunctionsClient, ConfirmedOwner, AutomationCo
    * Returns a tuple where the first element is a boolean which determines if upkeep is needed and the
    * second element contains custom bytes data which is passed to performUpkeep when it is called by Automation.
    */
-  function checkUpkeep(
-    bytes memory
-  ) public view override returns (bool upkeepNeeded, bytes memory) {
+  function checkUpkeep(bytes memory) public view override returns (bool upkeepNeeded, bytes memory) {
     upkeepNeeded = (block.timestamp - lastUpkeepTimeStamp) > updateInterval;
   }
 
