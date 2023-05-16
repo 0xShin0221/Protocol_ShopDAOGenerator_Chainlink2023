@@ -60,7 +60,7 @@ export interface SalesDistributorClientInterface extends utils.Interface {
     "checkUpkeep(bytes)": FunctionFragment;
     "estimateCost((uint8,uint8,uint8,string,bytes,string[]),uint64,uint32,uint256)": FunctionFragment;
     "fulfillGasLimit()": FunctionFragment;
-    "generateRequest(string,bytes,uint8,string[])": FunctionFragment;
+    "generateRequest(string,bytes,string[])": FunctionFragment;
     "getDONPublicKey()": FunctionFragment;
     "handleOracleFulfillment(bytes32,bytes,bytes)": FunctionFragment;
     "lastUpkeepTimeStamp()": FunctionFragment;
@@ -130,7 +130,6 @@ export interface SalesDistributorClientInterface extends utils.Interface {
     values: [
       PromiseOrValue<string>,
       PromiseOrValue<BytesLike>,
-      PromiseOrValue<BigNumberish>,
       PromiseOrValue<string>[]
     ]
   ): string;
@@ -402,7 +401,6 @@ export interface SalesDistributorClient extends BaseContract {
     generateRequest(
       source: PromiseOrValue<string>,
       secrets: PromiseOrValue<BytesLike>,
-      secretsLocation: PromiseOrValue<BigNumberish>,
       args: PromiseOrValue<string>[],
       overrides?: CallOverrides
     ): Promise<[string]>;
@@ -482,7 +480,6 @@ export interface SalesDistributorClient extends BaseContract {
   generateRequest(
     source: PromiseOrValue<string>,
     secrets: PromiseOrValue<BytesLike>,
-    secretsLocation: PromiseOrValue<BigNumberish>,
     args: PromiseOrValue<string>[],
     overrides?: CallOverrides
   ): Promise<string>;
@@ -560,7 +557,6 @@ export interface SalesDistributorClient extends BaseContract {
     generateRequest(
       source: PromiseOrValue<string>,
       secrets: PromiseOrValue<BytesLike>,
-      secretsLocation: PromiseOrValue<BigNumberish>,
       args: PromiseOrValue<string>[],
       overrides?: CallOverrides
     ): Promise<string>;
@@ -684,7 +680,6 @@ export interface SalesDistributorClient extends BaseContract {
     generateRequest(
       source: PromiseOrValue<string>,
       secrets: PromiseOrValue<BytesLike>,
-      secretsLocation: PromiseOrValue<BigNumberish>,
       args: PromiseOrValue<string>[],
       overrides?: CallOverrides
     ): Promise<BigNumber>;
@@ -765,7 +760,6 @@ export interface SalesDistributorClient extends BaseContract {
     generateRequest(
       source: PromiseOrValue<string>,
       secrets: PromiseOrValue<BytesLike>,
-      secretsLocation: PromiseOrValue<BigNumberish>,
       args: PromiseOrValue<string>[],
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
