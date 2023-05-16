@@ -37,6 +37,10 @@ const config = {
         settings: SOLC_SETTINGS,
       },
       {
+        version: "0.8.4",
+        settings: SOLC_SETTINGS,
+      },
+      {
         version: "0.7.0",
         settings: SOLC_SETTINGS,
       },

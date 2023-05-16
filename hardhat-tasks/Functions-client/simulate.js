@@ -237,9 +237,7 @@ const deployMockOracle = async () => {
   // Deploy proxy admin
   await upgrades.deployProxyAdmin();
   // Deploy the oracle contract
-  const oracleFactory = await ethers.getContractFactory(
-    "contracts/dev/functions/FunctionsOracle.sol:FunctionsOracle"
-  );
+  const oracleFactory = await ethers.getContractFactory("FunctionsOracle");
   const oracleProxy = await upgrades.deployProxy(oracleFactory, [], {
     kind: "transparent",
   });
@@ -248,7 +246,7 @@ const deployMockOracle = async () => {
   await oracleProxy.setDONPublicKey("0x" + SHARED_DON_PUBLIC_KEY);
   // Deploy the mock registry billing contract
   const registryFactory = await ethers.getContractFactory(
-    "contracts/dev/functions/FunctionsBillingRegistry.sol:FunctionsBillingRegistry"
+    "FunctionsBillingRegistry"
   );
   const registryProxy = await upgrades.deployProxy(
     registryFactory,

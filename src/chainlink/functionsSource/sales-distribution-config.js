@@ -31,7 +31,9 @@ const requestConfig = {
   // code language (only JavaScript is currently supported)
   codeLanguage: CodeLanguage.JavaScript,
   // string containing the source code to be executed
-  source: fs.readFileSync("./sales-distribution-source.js").toString(),
+  source: fs
+    .readFileSync("src/chainlink/functionsSource/sales-distribution-source.js")
+    .toString(),
   // secrets can be accessed within the source code with `secrets.varName` (ie: secrets.apiKey)
   secrets: {
     apiKey: process.env.SHOPDAO_G_API_KEY ?? "",

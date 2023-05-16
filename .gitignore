@@ -25,3 +25,13 @@ offchain-secrets.json
 .chainlink_functions
 
 .DS_Store
+
+# hardhat
+artifacts
+cache
+cache_hardhat
+deployments
+node_modules
+coverage
+coverage.json
+typechain
