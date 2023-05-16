@@ -2,8 +2,8 @@
 pragma solidity ^0.8.6;
 
 import "./Functions.sol";
-import "../Interfaces/chainlink/IFunctionsClient.sol";
-import "../Interfaces/chainlink/IFunctionsOracle.sol";
+import "../interfaces/FunctionsClientInterface.sol";
+import "../interfaces/FunctionsOracleInterface.sol";
 
 /**
  * @title The Chainlink Functions client contract
@@ -72,11 +72,7 @@ abstract contract FunctionsClient is FunctionsClientInterface {
    * @param err Aggregated error from the user code or from the execution pipeline
    * Either response or error parameter will be set, but never both
    */
-  function fulfillRequest(
-    bytes32 requestId,
-    bytes memory response,
-    bytes memory err
-  ) internal virtual;
+  function fulfillRequest(bytes32 requestId, bytes memory response, bytes memory err) internal virtual;
 
   /**
    * @inheritdoc FunctionsClientInterface
