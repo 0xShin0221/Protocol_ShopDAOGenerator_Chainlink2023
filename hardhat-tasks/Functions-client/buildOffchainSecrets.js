@@ -33,7 +33,7 @@ task(
       } on network ${network.name}`
     );
     const OracleFactory = await ethers.getContractFactory(
-      "contracts/dev/functions/FunctionsOracle.sol:FunctionsOracle"
+      "src/chainlink/functions/dev/FunctionsOracle.sol:FunctionsOracle"
     );
     const oracleContract = await OracleFactory.attach(
       networks[network.name]["functionsOracleProxy"]

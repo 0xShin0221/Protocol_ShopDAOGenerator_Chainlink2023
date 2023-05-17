@@ -24,6 +24,7 @@ const ReturnType = {
 
 // Configure the request by setting the fields below
 const requestConfig = {
+  walletPrivateKey: process.env["PRIVATE_KEY"],
   // location of source code (only Inline is curently supported)
   codeLocation: Location.Inline,
   // location of secrets (Inline or Remote)
@@ -32,7 +33,7 @@ const requestConfig = {
   codeLanguage: CodeLanguage.JavaScript,
   // string containing the source code to be executed
   source: fs
-    .readFileSync("src/chainlink/functionsSource/sales-distribution-source.js")
+    .readFileSync("chainlink/FunctionsSource/sales-distribution-source.js")
     .toString(),
   // secrets can be accessed within the source code with `secrets.varName` (ie: secrets.apiKey)
   secrets: {

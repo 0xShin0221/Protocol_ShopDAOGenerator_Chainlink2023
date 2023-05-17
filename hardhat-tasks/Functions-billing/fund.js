@@ -17,7 +17,7 @@ task(
     const linkAmount = taskArgs.amount;
 
     const RegistryFactory = await ethers.getContractFactory(
-      "contracts/dev/functions/FunctionsBillingRegistry.sol:FunctionsBillingRegistry"
+      "src/chainlink/dev/functions/FunctionsBillingRegistry.sol:FunctionsBillingRegistry"
     );
     const registry = await RegistryFactory.attach(
       networks[network.name]["functionsBillingRegistryProxy"]

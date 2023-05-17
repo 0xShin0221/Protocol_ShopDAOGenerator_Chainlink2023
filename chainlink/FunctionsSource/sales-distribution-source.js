@@ -12,7 +12,7 @@ const salesDistributionRequest = Functions.makeHttpRequest({
     Authorization: secrets.apiKey,
   },
 });
-
+console.log("secrets.apiUrl + endpoint", secrets.apiUrl + endpoint);
 const salesDistributionResponse = await salesDistributionRequest;
 
 if (salesDistributionRequest.error) {
