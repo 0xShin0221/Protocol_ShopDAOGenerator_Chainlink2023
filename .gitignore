@@ -12,3 +12,26 @@ docs/
 
 # Dotenv file
 .env
+
+node_modules
+
+offchain-secrets.json
+.env.enc
+
+# OpenZeppelin Upgrades local network artifacts
+.openzeppelin
+
+# Chainlink Functions request artifacts
+.chainlink_functions
+
+.DS_Store
+
+# hardhat
+artifacts
+cache
+cache_hardhat
+deployments
+node_modules
+coverage
+coverage.json
+typechain
