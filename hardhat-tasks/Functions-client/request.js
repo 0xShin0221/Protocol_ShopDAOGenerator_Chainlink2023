@@ -143,7 +143,6 @@ task(
       );
     }
 
-    console.log("requestC", requestConfig);
     const transactionEstimateGas =
       await clientContract.estimateGas.executeRequest(
         requestConfig.source,
