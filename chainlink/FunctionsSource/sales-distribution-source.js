@@ -13,16 +13,16 @@ const salesDistributionRequest = Functions.makeHttpRequest({
   },
 });
 const salesDistributionResponse = await salesDistributionRequest;
-
+console.log("salesDistributionResponse", salesDistributionResponse);
 if (salesDistributionRequest.error) {
   throw new Error("Error fetching sales distribution");
 }
 
 const result = {
-  nftAddresses: salesDistributionResponse.data.nftAddresses,
-  hyphenatedOrderIds: salesDistributionResponse.data.hyphenatedOrderIds,
-  totalSales: salesDistributionResponse.data.totalSales,
-  totalProfits: salesDistributionResponse.data.totalProfits,
+  nftAddress: salesDistributionResponse.data.nftAddress,
+  orderId: salesDistributionResponse.data.orderId,
+  totalSale: salesDistributionResponse.data.totalSale,
+  totalProfit: salesDistributionResponse.data.totalProfit,
 };
 
 return Functions.encodeString(JSON.stringify(result));
