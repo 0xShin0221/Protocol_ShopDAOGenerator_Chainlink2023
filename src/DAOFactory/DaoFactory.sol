@@ -9,9 +9,6 @@ import "../Interfaces/IGoveranceNFTs.sol";
 import "../Interfaces/IGovernanceTimeLock.sol";
 import "../Interfaces/IGovernorContract.sol";
 
-
-
-
 contract DaoFactory is AccessControl, IDaoFactory {
 
     ///Constant
@@ -56,11 +53,27 @@ contract DaoFactory is AccessControl, IDaoFactory {
         address vote = Clones.clone(VOTE_ADDRESS);
         address timeLock = Clones.clone(TIMELOCK_ADDRESS);
         address dao = Clones.clone(DAO_ADDRESS);
-        // GovernorContract dao = new GovernorContract(params.daoName, IVotes(vote), TimelockController(payable(timeLock)), params.governance_votingDelay, params.governance_votingPeriod, params.governance_quorumPercentage);
         daoStorage[id] = (DAO(params.daoName, vote, timeLock, dao, block.timestamp));
-        IGoveranceNFTs(vote).init(params.owner, params.vote_maximumSupply, params.vote_name, params.vote_symbol, params.vote_URI);
-        IGovernanceTimeLock(timeLock).init(params.timelock_minDelay, proposerList, executorList, params.owner);
-        IGovernorContract(dao).init(params.daoName, IVotes(vote), TimelockController(payable(timeLock)), params.governance_votingDelay, params.governance_votingPeriod, params.governance_quorumPercentage);
+        IGoveranceNFTs(vote).init(params.owner, 
+            params.vote_maximumSupply, 
+            params.vote_name, 
+            params.vote_symbol, 
+            params.vote_URI
+        );
+        IGovernanceTimeLock(timeLock).init(
+            params.timelock_minDelay, proposerList, 
+            executorList, 
+            params.owner
+        );
+        IGovernorContract(dao).init(
+            params.daoName, 
+            IVotes(vote), 
+            TimelockController(payable(timeLock)), 
+            params.governance_votingDelay, 
+            params.governance_votingPeriod, 
+            params.governance_quorumPercentage, 
+            params.owner
+        );
         emit Create(id++, params.daoName, dao, vote, block.timestamp);
     }
 

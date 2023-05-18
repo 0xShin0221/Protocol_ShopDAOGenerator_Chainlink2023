@@ -11,7 +11,8 @@ interface IGovernorContract {
         TimelockController _timelock,
         uint256 _votingDelay,
         uint256 _votingPeriod,
-        uint256 _quorumPercentage
+        uint256 _quorumPercentage,
+        address _owner
     ) 
         external;
 }

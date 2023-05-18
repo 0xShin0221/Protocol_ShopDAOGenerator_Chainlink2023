@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.2;
-import "forge-std/console.sol";
+
 import "./ERC721AVotes.sol";
 import "@openzeppelin/contracts/access/AccessControl.sol";
 contract GovernanceNFTs is ERC721AVotes, AccessControl {
@@ -9,7 +9,6 @@ contract GovernanceNFTs is ERC721AVotes, AccessControl {
     bytes32 constant public BRAND_MANAGER_ROLE = keccak256(abi.encode("BRAND_MANAGER_ROLE"));
 
     /// Error
-    error AlreadtInit();
     error ExceedsMaximumSupply();
 
     /// Variable
@@ -19,7 +18,7 @@ contract GovernanceNFTs is ERC721AVotes, AccessControl {
     string private symbol_;
     address public owner;
     string public shopDaoBaseURI;
-    constructor() ERC721A("ShopDao", "ShopDao") EIP712("ShopDao", "1")
+    constructor() ERC721A("ShopDao", "ShopDao") EIP712C("ShopDao", "1")
     {
       
     }
@@ -33,13 +32,14 @@ contract GovernanceNFTs is ERC721AVotes, AccessControl {
     ) 
         external 
     {
-        if(owner != address(0)) revert AlreadtInit();
+        if(owner != address(0)) revert AlreadyInitialized();
         tokenId = 1;
         maximum = _maximum;
         name_ = _name;
         symbol_ = _symbol;
         owner = _owner;
         shopDaoBaseURI = _shopDaoBaseURI;
+        initEIP712(_name, "1");
         _grantRole(DEFAULT_ADMIN_ROLE, _owner);
         _grantRole(BRAND_MANAGER_ROLE, _owner);            
     }

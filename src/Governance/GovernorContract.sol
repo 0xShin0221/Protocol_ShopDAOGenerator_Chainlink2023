@@ -19,7 +19,7 @@ contract GovernorContract is
   AccessControl
 {
   ///Constant
-  bytes32 constant public BRAND_MANAGER_ROLE = keccak256(abi.encode("BRAND_MANAGER_ROLE"));
+  bytes32 public constant BRAND_MANAGER_ROLE = keccak256(abi.encode("BRAND_MANAGER_ROLE"));
     
   /// Variable
   bool private isInitialized;
@@ -52,14 +52,15 @@ contract GovernorContract is
     TimelockController _timelock,
     uint256 _votingDelay,
     uint256 _votingPeriod,
-    uint256 _quorumPercentage
+    uint256 _quorumPercentage,
+    address _owner
   ) 
     external 
   {
     if(isInitialized) revert AlreadyInitialized();
     isInitialized = true;
-    _grantRole(DEFAULT_ADMIN_ROLE, msg.sender);
-    _grantRole(BRAND_MANAGER_ROLE, msg.sender);
+    _grantRole(DEFAULT_ADMIN_ROLE, _owner);
+    _grantRole(BRAND_MANAGER_ROLE, _owner);
     initEIP712(_daoName, version());
     _setVotingDelay(_votingDelay);
     _setVotingPeriod(_votingPeriod);
