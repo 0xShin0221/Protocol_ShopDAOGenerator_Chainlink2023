@@ -4,14 +4,17 @@ pragma solidity ^0.8.7;
 import {Functions, FunctionsClient} from "./dev/functions/FunctionsClient.sol";
 // import "@chainlink/contracts/src/v0.8/dev/functions/FunctionsClient.sol"; // Once published
 import {ConfirmedOwner} from "@chainlink/contracts/src/v0.8/ConfirmedOwner.sol";
+import "@openzeppelin/contracts/access/AccessControl.sol";
 
 /**
  * @title Functions Consumer contract
  * @notice This contract is a demonstration of using Functions.
  * @notice NOT FOR PRODUCTION USE
  */
-contract FunctionsConsumer is FunctionsClient, ConfirmedOwner {
+contract FunctionsConsumer is FunctionsClient, ConfirmedOwner,AccessControl {
   using Functions for Functions.Request;
+
+  bytes32 public constant EXECUTOR_ROLE = keccak256("FUNCTION_CONSUMER_EXECUTOR_ROLE");
 
   bytes32 public latestRequestId;
   bytes public latestResponse;
@@ -26,7 +29,9 @@ contract FunctionsConsumer is FunctionsClient, ConfirmedOwner {
    */
   // https://github.com/protofire/solhint/issues/242
   // solhint-disable-next-line no-empty-blocks
-  constructor(address oracle) FunctionsClient(oracle) ConfirmedOwner(msg.sender) {}
+  constructor(address oracle) FunctionsClient(oracle) ConfirmedOwner(msg.sender) {
+    _setupRole(EXECUTOR_ROLE, msg.sender);
+  }
 
   /**
    * @notice Send a simple request
@@ -44,7 +49,7 @@ contract FunctionsConsumer is FunctionsClient, ConfirmedOwner {
     string[] calldata args,
     uint64 subscriptionId,
     uint32 gasLimit
-  ) public onlyOwner returns (bytes32) {
+  ) public onlyRole(EXECUTOR_ROLE) returns (bytes32) {
     Functions.Request memory req;
     req.initializeRequest(Functions.Location.Inline, Functions.CodeLanguage.JavaScript, source);
     if (secrets.length > 0) {
@@ -82,5 +87,13 @@ contract FunctionsConsumer is FunctionsClient, ConfirmedOwner {
 
   function addSimulatedRequestId(address oracleAddress, bytes32 requestId) public onlyOwner {
     addExternalRequest(oracleAddress, requestId);
+  }
+
+    function grantRole(bytes32 role, address account) public override onlyOwner {
+    _grantRole(role, account);
+  }
+
+  function revokeRole(bytes32 role, address account) public override onlyOwner {
+    _revokeRole(role, account);
   }
 }
