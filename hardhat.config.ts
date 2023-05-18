@@ -69,6 +69,15 @@ const config = {
     },
     ...networks,
   },
+  etherscan: {
+    // npx hardhat verify --network <NETWORK> <CONTRACT_ADDRESS> <CONSTRUCTOR_PARAMETERS>
+    // to get exact network names: npx hardhat verify --list-networks
+    apiKey: {
+      sepolia: networks.ethereumSepolia.verifyApiKey,
+      polygonMumbai: networks.polygonMumbai.verifyApiKey,
+      avalancheFujiTestnet: networks.avalancheFuji.verifyApiKey,
+    },
+  },
   paths: {
     sources: "./src", // Use ./src rather than ./contracts as Hardhat expects
     cache: "./cache_hardhat", // Use a different cache for Hardhat than Foundry

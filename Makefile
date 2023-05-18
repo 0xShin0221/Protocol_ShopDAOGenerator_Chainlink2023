@@ -6,7 +6,7 @@ chainlinkSimulate:
 	npx hardhat functions-simulate --configpath $(CHAINLINK_CONFIG_PATH)
 
 chainlinkClientCreate:
-	npx hardhat functions-deploy-client --network polygonMumbai --verify false
+	npx hardhat functions-deploy-client --network polygonMumbai --verify true
 
 chainlinkSubcscriptionFund:
 	npx hardhat functions-sub-fund --subid $(CHAINLINK_SUB_ID)  --amount $(CHAINLINK_LINK_AMOUNT)  --network $(CHAINLINK_TARGET_NETWORK)
@@ -16,3 +16,7 @@ chainlinkFunctionsRequest:
 
 chainlinkSubscriptionCreate:
 	npx hardhat functions-sub-create --network polygonMumbai --amount 1 --contract ${CHAINLINK_CLIENT_CONTRACT_ADDRESS} 
+
+# Add: consumer contract to subscription
+chainlinkSubscriptionAdd:
+	npx hardhat functions-sub-add --subid $(CHAINLINK_SUB_ID) --contract ${CHAINLINK_CLIENT_CONTRACT_ADDRESS} --network $(CHAINLINK_TARGET_NETWORK)
