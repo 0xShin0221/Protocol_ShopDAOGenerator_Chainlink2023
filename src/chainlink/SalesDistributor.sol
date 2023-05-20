@@ -6,11 +6,11 @@ import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 
 contract SalesDistributor is Ownable {
-    struct SaleDetails {
-        address[] nftAddress;
-        string[] hyphenatedOrderIds;
-        uint256[] totalSale;
-        uint256[] totalProfit;
+    struct DistributionDetails {
+        address nftAddress;
+        string orderId;
+        uint256 totalSale;
+        uint256 totalProfit;
     }
 
     // USDC　of Matic
@@ -36,34 +36,24 @@ contract SalesDistributor is Ownable {
     mapping(address => uint256) public userProfits;
 
 
-    event ProfitsDistributed(address indexed nftAddress, string hyphenatedOrderId, uint256 totalSale, uint256 totalProfit);
+    event ProfitsDistributed(address indexed nftAddress, string orderId, uint256 totalSale, uint256 totalProfit);
 
-    function distributeProfits(SaleDetails memory saleDetails) public onlySalesDistributorClient {
-        require(
-            saleDetails.nftAddress.length == saleDetails.hyphenatedOrderIds.length &&
-            saleDetails.nftAddress.length == saleDetails.totalSale.length &&
-            saleDetails.nftAddress.length == saleDetails.totalProfit.length,
-            "All SaleDetails arrays must have the same length"
-        );
+    function distributeProfits(DistributionDetails memory distributionDetails) public onlySalesDistributorClient {
         IERC20 usdc = IERC20(USDC_ADDRESS);
-        
-        for(uint i = 0; i < saleDetails.nftAddress.length; i++) {
-            IERC721A nft = IERC721A(saleDetails.nftAddress[i]);
-            uint256 balance = usdc.balanceOf(address(this));
-            require(balance >= saleDetails.totalProfit[i], "Not enough USDC for distribution.");
+        IERC721A nft = IERC721A(distributionDetails.nftAddress);
+        uint256 balance = usdc.balanceOf(address(this));
+        require(balance >= distributionDetails.totalProfit, "Not enough USDC for distribution.");
 
-            for(uint j = 0; j < nft.totalSupply(); j++) {
-                address owner = nft.ownerOf(j);
-                usdc.transfer(owner, saleDetails.totalProfit[i]);
-                userProfits[owner] += saleDetails.totalProfit[i];
-            }
-            
-            totalDistributedSales[saleDetails.nftAddress[i]] += saleDetails.totalSale[i];
-            totalDistributedProfit[saleDetails.nftAddress[i]] += saleDetails.totalProfit[i];
-
-            emit ProfitsDistributed(saleDetails.nftAddress[i], saleDetails.hyphenatedOrderIds[i], saleDetails.totalSale[i], saleDetails.totalProfit[i]);
+        for(uint j = 0; j < nft.totalSupply(); j++) {
+            address owner = nft.ownerOf(j);
+            usdc.transfer(owner, distributionDetails.totalProfit);
+            userProfits[owner] += distributionDetails.totalProfit;
         }
-       
+        
+        totalDistributedSales[distributionDetails.nftAddress] += distributionDetails.totalSale;
+        totalDistributedProfit[distributionDetails.nftAddress] += distributionDetails.totalProfit;
+
+        emit ProfitsDistributed(distributionDetails.nftAddress, distributionDetails.orderId, distributionDetails.totalSale, distributionDetails.totalProfit);
     }
 
     function getDistributionByNftAddress(address nftAddress) public view returns (uint256,uint256) {

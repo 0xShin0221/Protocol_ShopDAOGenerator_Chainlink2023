@@ -64,18 +64,20 @@ task(
 
     // Attach to the required contracts
     const clientContractFactory = await ethers.getContractFactory(
-      "FunctionsConsumer"
+      "src/chainlink/FunctionsConsumer.sol:FunctionsConsumer"
     );
+
     const clientContract = clientContractFactory.attach(contractAddr);
     const OracleFactory = await ethers.getContractFactory(
-      "contracts/dev/functions/FunctionsOracle.sol:FunctionsOracle"
+      "src/chainlink/dev/functions/FunctionsOracle.sol:FunctionsOracle"
     );
+
     const oracle = await OracleFactory.attach(
       networks[network.name]["functionsOracleProxy"]
     );
     const registryAddress = await oracle.getRegistry();
     const RegistryFactory = await ethers.getContractFactory(
-      "contracts/dev/functions/FunctionsBillingRegistry.sol:FunctionsBillingRegistry"
+      "src/chainlink/dev/functions/FunctionsBillingRegistry.sol:FunctionsBillingRegistry"
     );
     const registry = await RegistryFactory.attach(registryAddress);
 
@@ -132,11 +134,9 @@ task(
       estimatedCostJuels,
       18
     );
-
     // Ensure that the subscription has a sufficient balance
     const subBalanceInJules = subInfo[0];
     const linkBalance = hre.ethers.utils.formatUnits(subBalanceInJules, 18);
-
     if (subBalanceInJules.lt(estimatedCostJuels)) {
       throw Error(
         `Subscription ${subscriptionId} does not have sufficient funds. The estimated cost is ${estimatedCostLink} LINK, but the subscription only has a balance of ${linkBalance} LINK`

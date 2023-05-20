@@ -128,7 +128,7 @@ const generateRequest = async (requestConfig, taskArgs) => {
   }
 
   const OracleFactory = await ethers.getContractFactory(
-    "contracts/dev/functions/FunctionsOracle.sol:FunctionsOracle"
+    "src/chainlink/dev/functions/FunctionsOracle.sol:FunctionsOracle"
   );
   const oracle = await OracleFactory.attach(
     networks[network.name]["functionsOracleProxy"]
