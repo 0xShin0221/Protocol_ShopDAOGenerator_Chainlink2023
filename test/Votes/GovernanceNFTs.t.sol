@@ -25,7 +25,7 @@ contract GovernanceNFTsTest is Test{
     function testInformation() public {
         vm.prank(owner);
         governanceNFTs.mint(owner, 100);
-        assertEq(governanceNFTs.maximum(), MAX_SUPPLY);
+        assertEq(governanceNFTs.maximumSupply(), MAX_SUPPLY);
         assertEq(governanceNFTs.owner(), owner);
         assertEq(governanceNFTs.name(), NFT_NAME);
         assertEq(governanceNFTs.symbol(), NFT_SYMBOL);
