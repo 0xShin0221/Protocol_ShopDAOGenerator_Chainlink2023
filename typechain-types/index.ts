@@ -140,10 +140,10 @@ export type { Pausable } from "./src/chainlink/dev/vendor/openzeppelin-solidity/
 export { Pausable__factory } from "./factories/src/chainlink/dev/vendor/openzeppelin-solidity/v.4.8.0/contracts/security/Pausable__factory";
 export type { FunctionsConsumer } from "./src/chainlink/FunctionsConsumer";
 export { FunctionsConsumer__factory } from "./factories/src/chainlink/FunctionsConsumer__factory";
+export type { ProductRegistConsumer } from "./src/chainlink/ProductRegistConsumer";
+export { ProductRegistConsumer__factory } from "./factories/src/chainlink/ProductRegistConsumer__factory";
 export type { SalesDistributor } from "./src/chainlink/SalesDistributor";
 export { SalesDistributor__factory } from "./factories/src/chainlink/SalesDistributor__factory";
-export type { SalesDistributorClient } from "./src/chainlink/SalesDistributorClient";
-export { SalesDistributorClient__factory } from "./factories/src/chainlink/SalesDistributorClient__factory";
 export type { DaoFactory } from "./src/DAOFactory/DaoFactory";
 export { DaoFactory__factory } from "./factories/src/DAOFactory/DaoFactory__factory";
 export type { EIP712C } from "./src/Governance/customizedGovernor/EIP712C";

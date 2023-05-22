@@ -33,7 +33,7 @@ const requestConfig = {
   codeLanguage: CodeLanguage.JavaScript,
   // string containing the source code to be executed
   source: fs
-    .readFileSync("chainlink/FunctionsSource/sales-distribution-source.js")
+    .readFileSync("chainlink/FunctionsSource/product-registoration-source.js")
     .toString(),
   // secrets can be accessed within the source code with `secrets.varName` (ie: secrets.apiKey)
   secrets: {
@@ -41,7 +41,16 @@ const requestConfig = {
     apiUrl: process.env.SHOPDAO_G_API_URL ?? "",
   },
   // args can be accessed within the source code with `args[index]` (ie: args[0])
-  args: ["chainlink/salesDistribution"],
+  args: [
+    "chainlink/productRegistoration",
+    "https://dev-shop-dao-generator-chainlink2023.vercel.app/api/",
+    "0x",
+    "{'title': 'Burton Custom Freestyle 151','body_html': '<strong>Good snowboard!</strong>','vendor': 'Burton','product_type': 'Snowboard'}",
+    "[{'option1':'Blue','option2':'155'},{'option1':'Black','option2':'159'}]",
+    "[{'name':'Color','values':['Blue','Black']},{'name':'Size','values':['155','159']}]",
+    "[{'src':'http://example.com/rails_logo.gif'}]",
+    "[{'sku':'skusample','cost':'100'}]",
+  ],
   // expected type of the returned value
   expectedReturnType: ReturnType.string,
 };

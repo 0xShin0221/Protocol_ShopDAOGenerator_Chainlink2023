@@ -293,13 +293,13 @@ declare module "hardhat/types/runtime" {
       signerOrOptions?: ethers.Signer | FactoryOptions
     ): Promise<Contracts.FunctionsConsumer__factory>;
     getContractFactory(
+      name: "ProductRegistConsumer",
+      signerOrOptions?: ethers.Signer | FactoryOptions
+    ): Promise<Contracts.ProductRegistConsumer__factory>;
+    getContractFactory(
       name: "SalesDistributor",
       signerOrOptions?: ethers.Signer | FactoryOptions
     ): Promise<Contracts.SalesDistributor__factory>;
-    getContractFactory(
-      name: "SalesDistributorClient",
-      signerOrOptions?: ethers.Signer | FactoryOptions
-    ): Promise<Contracts.SalesDistributorClient__factory>;
     getContractFactory(
       name: "DaoFactory",
       signerOrOptions?: ethers.Signer | FactoryOptions
@@ -728,15 +728,15 @@ declare module "hardhat/types/runtime" {
       signer?: ethers.Signer
     ): Promise<Contracts.FunctionsConsumer>;
     getContractAt(
+      name: "ProductRegistConsumer",
+      address: string,
+      signer?: ethers.Signer
+    ): Promise<Contracts.ProductRegistConsumer>;
+    getContractAt(
       name: "SalesDistributor",
       address: string,
       signer?: ethers.Signer
     ): Promise<Contracts.SalesDistributor>;
-    getContractAt(
-      name: "SalesDistributorClient",
-      address: string,
-      signer?: ethers.Signer
-    ): Promise<Contracts.SalesDistributorClient>;
     getContractAt(
       name: "DaoFactory",
       address: string,

@@ -6,5 +6,5 @@ export type { dev };
 export type { Functions } from "./Functions";
 export type { FunctionsClient } from "./FunctionsClient";
 export type { FunctionsConsumer } from "./FunctionsConsumer";
+export type { ProductRegistConsumer } from "./ProductRegistConsumer";
 export type { SalesDistributor } from "./SalesDistributor";
-export type { SalesDistributorClient } from "./SalesDistributorClient";

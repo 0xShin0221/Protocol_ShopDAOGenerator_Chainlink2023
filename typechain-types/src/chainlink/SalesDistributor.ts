@@ -28,30 +28,30 @@ import type {
 } from "../../common";
 
 export declare namespace SalesDistributor {
-  export type SaleDetailsStruct = {
-    nftAddress: PromiseOrValue<string>[];
-    hyphenatedOrderIds: PromiseOrValue<string>[];
-    totalSale: PromiseOrValue<BigNumberish>[];
-    totalProfit: PromiseOrValue<BigNumberish>[];
+  export type DistributionDetailsStruct = {
+    nftAddress: PromiseOrValue<string>;
+    orderId: PromiseOrValue<string>;
+    totalSale: PromiseOrValue<BigNumberish>;
+    totalProfit: PromiseOrValue<BigNumberish>;
   };
 
-  export type SaleDetailsStructOutput = [
-    string[],
-    string[],
-    BigNumber[],
-    BigNumber[]
+  export type DistributionDetailsStructOutput = [
+    string,
+    string,
+    BigNumber,
+    BigNumber
   ] & {
-    nftAddress: string[];
-    hyphenatedOrderIds: string[];
-    totalSale: BigNumber[];
-    totalProfit: BigNumber[];
+    nftAddress: string;
+    orderId: string;
+    totalSale: BigNumber;
+    totalProfit: BigNumber;
   };
 }
 
 export interface SalesDistributorInterface extends utils.Interface {
   functions: {
     "USDC_ADDRESS()": FunctionFragment;
-    "distributeProfits((address[],string[],uint256[],uint256[]))": FunctionFragment;
+    "distributeProfits((address,string,uint256,uint256))": FunctionFragment;
     "getDistributionByNftAddress(address)": FunctionFragment;
     "getUserProfit(address)": FunctionFragment;
     "owner()": FunctionFragment;
@@ -86,7 +86,7 @@ export interface SalesDistributorInterface extends utils.Interface {
   ): string;
   encodeFunctionData(
     functionFragment: "distributeProfits",
-    values: [SalesDistributor.SaleDetailsStruct]
+    values: [SalesDistributor.DistributionDetailsStruct]
   ): string;
   encodeFunctionData(
     functionFragment: "getDistributionByNftAddress",
@@ -195,7 +195,7 @@ export type OwnershipTransferredEventFilter =
 
 export interface ProfitsDistributedEventObject {
   nftAddress: string;
-  hyphenatedOrderId: string;
+  orderId: string;
   totalSale: BigNumber;
   totalProfit: BigNumber;
 }
@@ -237,7 +237,7 @@ export interface SalesDistributor extends BaseContract {
     USDC_ADDRESS(overrides?: CallOverrides): Promise<[string]>;
 
     distributeProfits(
-      saleDetails: SalesDistributor.SaleDetailsStruct,
+      distributionDetails: SalesDistributor.DistributionDetailsStruct,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
@@ -288,7 +288,7 @@ export interface SalesDistributor extends BaseContract {
   USDC_ADDRESS(overrides?: CallOverrides): Promise<string>;
 
   distributeProfits(
-    saleDetails: SalesDistributor.SaleDetailsStruct,
+    distributionDetails: SalesDistributor.DistributionDetailsStruct,
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
@@ -339,7 +339,7 @@ export interface SalesDistributor extends BaseContract {
     USDC_ADDRESS(overrides?: CallOverrides): Promise<string>;
 
     distributeProfits(
-      saleDetails: SalesDistributor.SaleDetailsStruct,
+      distributionDetails: SalesDistributor.DistributionDetailsStruct,
       overrides?: CallOverrides
     ): Promise<void>;
 
@@ -397,13 +397,13 @@ export interface SalesDistributor extends BaseContract {
 
     "ProfitsDistributed(address,string,uint256,uint256)"(
       nftAddress?: PromiseOrValue<string> | null,
-      hyphenatedOrderId?: null,
+      orderId?: null,
       totalSale?: null,
       totalProfit?: null
     ): ProfitsDistributedEventFilter;
     ProfitsDistributed(
       nftAddress?: PromiseOrValue<string> | null,
-      hyphenatedOrderId?: null,
+      orderId?: null,
       totalSale?: null,
       totalProfit?: null
     ): ProfitsDistributedEventFilter;
@@ -413,7 +413,7 @@ export interface SalesDistributor extends BaseContract {
     USDC_ADDRESS(overrides?: CallOverrides): Promise<BigNumber>;
 
     distributeProfits(
-      saleDetails: SalesDistributor.SaleDetailsStruct,
+      distributionDetails: SalesDistributor.DistributionDetailsStruct,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
@@ -465,7 +465,7 @@ export interface SalesDistributor extends BaseContract {
     USDC_ADDRESS(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     distributeProfits(
-      saleDetails: SalesDistributor.SaleDetailsStruct,
+      distributionDetails: SalesDistributor.DistributionDetailsStruct,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
