@@ -8,7 +8,10 @@ import "./customizedGovernor/extensions/GovernorTimelockControlC.sol";
 import "./customizedGovernor/extensions/GovernorSettingsC.sol";
 import "./customizedGovernor/extensions/GovernorVotesQuorumFractionC.sol";
 import "@openzeppelin/contracts/access/AccessControl.sol";
-
+/** 
+ * @title GovernorContract
+ * @notice The GovernorContract is a timelock controller that makes a specific schedule for owners to execute an approved proposal. 
+ */
 contract GovernorContract is
   GovernorC,
   GovernorSettingsC,
@@ -19,7 +22,7 @@ contract GovernorContract is
   AccessControl
 {
   ///Constant
-  bytes32 constant public BRAND_MANAGER_ROLE = keccak256(abi.encode("BRAND_MANAGER_ROLE"));
+  bytes32 public constant BRAND_MANAGER_ROLE = keccak256(abi.encode("BRAND_MANAGER_ROLE"));
     
   /// Variable
   bool private isInitialized;
@@ -46,20 +49,32 @@ contract GovernorContract is
      _grantRole(BRAND_MANAGER_ROLE, msg.sender);
   }
 
+  /**
+   * @notice The init function is to set up values in the constructor of inherited contracts required for DAO.
+   * @dev It is only executed only once right after clonning GovernorContract. 
+   * @param _daoName indicates the name of dao.
+   * @param _token is the address of token used as votes to proposals.
+   * @param _timelock is the address of a timelock controller.
+   * @param _votingDelay is the delay since proposal is created until voting starts.
+   * @param _votingPeriod  is the period that users can cast votes.
+   * @param _quorumPercentage is the minmum percentange to pass a proposal. 
+   * @param _owner is the owner address.
+   */
   function init(
     string calldata _daoName,
     IVotes _token,
     TimelockController _timelock,
     uint256 _votingDelay,
     uint256 _votingPeriod,
-    uint256 _quorumPercentage
+    uint256 _quorumPercentage,
+    address _owner
   ) 
     external 
   {
     if(isInitialized) revert AlreadyInitialized();
     isInitialized = true;
-    _grantRole(DEFAULT_ADMIN_ROLE, msg.sender);
-    _grantRole(BRAND_MANAGER_ROLE, msg.sender);
+    _grantRole(DEFAULT_ADMIN_ROLE, _owner);
+    _grantRole(BRAND_MANAGER_ROLE, _owner);
     initEIP712(_daoName, version());
     _setVotingDelay(_votingDelay);
     _setVotingPeriod(_votingPeriod);
@@ -69,11 +84,16 @@ contract GovernorContract is
     _updateTimelock(_timelock);
   }
 
-
+  /**
+   * @notice The name function returns the name of dao.
+   */
   function name() public view virtual override(IGovernor, GovernorC) returns (string memory) {
       return daoName;
   }
 
+  /**
+   * @notice The votingDelay function returns the amount of blocks for the voting delay.
+   */
   function votingDelay()
     public
     view
@@ -83,6 +103,9 @@ contract GovernorContract is
     return super.votingDelay();
   }
 
+  /** 
+   * @notice The votingPeriod functions returns the amount of seconds for voting duration.
+   */
   function votingPeriod()
     public
     view
@@ -92,8 +115,11 @@ contract GovernorContract is
     return super.votingPeriod();
   }
 
-  // The following functions are overrides required by Solidity.
 
+  /** 
+   * @notice The quorum functions returns the current amount of quorum in a input blocknumber.
+   * @param blockNumber is for fetching the amount of quorum in the blocknumber.
+   */
   function quorum(uint256 blockNumber)
     public
     view
@@ -103,6 +129,11 @@ contract GovernorContract is
     return super.quorum(blockNumber);
   }
 
+  /** 
+   * @notice The getVotes function returns the number of votes that input account has on input block number. 
+   * @param account is the address to look for how mnay votes that the account has.
+   * @param blockNumber is the block number to fetch how many votes an account has on that block number. 
+   */
   function getVotes(address account, uint256 blockNumber)
     public
     view
@@ -112,6 +143,10 @@ contract GovernorContract is
     return super.getVotes(account, blockNumber);
   }
 
+  /** 
+   * @notice The state function returns the current status of an proposal. 
+   * @param proposalId is the id of proposal to check for the status of it.
+   */
   function state(uint256 proposalId)
     public
     view
@@ -121,6 +156,13 @@ contract GovernorContract is
     return super.state(proposalId);
   }
 
+  /** 
+   * @notice The propose function is to make a proposal.
+   * @param targets is the address of a target contract.
+   * @param values is the amount of native coin if a proposal is required.
+   * @param calldatas is the calldata to call a function in the target contract.
+   * @param description is the description of a proposal.
+   */
   function propose(
     address[] memory targets,
     uint256[] memory values,
@@ -130,6 +172,9 @@ contract GovernorContract is
     return super.propose(targets, values, calldatas, description);
   }
 
+  /** 
+   * @notice The proposalThreshold function return the threshold of proposal.
+   */
   function proposalThreshold()
     public
     view

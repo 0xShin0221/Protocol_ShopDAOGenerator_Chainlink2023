@@ -8,10 +8,10 @@ import "../Interfaces/IDaoFactory.sol";
 import "../Interfaces/IGoveranceNFTs.sol";
 import "../Interfaces/IGovernanceTimeLock.sol";
 import "../Interfaces/IGovernorContract.sol";
-
-
-
-
+/** 
+ * @title DaoFactory
+ * @notice Only brand managers can use DaoFactory to create a new dao. 
+ */
 contract DaoFactory is AccessControl, IDaoFactory {
 
     ///Constant
@@ -37,11 +37,12 @@ contract DaoFactory is AccessControl, IDaoFactory {
     uint256 public id = 1;
     address[] public proposerList;
     address[] public executorList = [address(0)];
+
     constructor(
         address _vote_address, 
         address _timeLock_address, 
         address _dao_address
-) {
+    ) {
         VOTE_ADDRESS = _vote_address;
         TIMELOCK_ADDRESS = _timeLock_address;
         DAO_ADDRESS = _dao_address;
@@ -49,6 +50,11 @@ contract DaoFactory is AccessControl, IDaoFactory {
         _grantRole(BRAND_MANAGER_ROLE, msg.sender);
     }
 
+    /**
+     * @notice Only brand Managers can execute this function to create a new dao.
+     * @dev  The "create" function is to clone goveranceNFTs, governanceTimeLock, and govornorContract. 
+     * @param params is the parameter defined in IDaoFactory and is for cloning goveranceNFTs, governanceTimeLock, and govornorContract.
+     */
     function create(createParams calldata params) 
         external 
         onlyRole(BRAND_MANAGER_ROLE) 
@@ -56,14 +62,35 @@ contract DaoFactory is AccessControl, IDaoFactory {
         address vote = Clones.clone(VOTE_ADDRESS);
         address timeLock = Clones.clone(TIMELOCK_ADDRESS);
         address dao = Clones.clone(DAO_ADDRESS);
-        // GovernorContract dao = new GovernorContract(params.daoName, IVotes(vote), TimelockController(payable(timeLock)), params.governance_votingDelay, params.governance_votingPeriod, params.governance_quorumPercentage);
         daoStorage[id] = (DAO(params.daoName, vote, timeLock, dao, block.timestamp));
-        IGoveranceNFTs(vote).init(params.owner, params.vote_maximumSupply, params.vote_name, params.vote_symbol, params.vote_URI);
-        IGovernanceTimeLock(timeLock).init(params.timelock_minDelay, proposerList, executorList, params.owner);
-        IGovernorContract(dao).init(params.daoName, IVotes(vote), TimelockController(payable(timeLock)), params.governance_votingDelay, params.governance_votingPeriod, params.governance_quorumPercentage);
+        IGoveranceNFTs(vote).init(
+            params.owner, 
+            params.voteMaximumSupply, 
+            params.voteName, 
+            params.voteSymbol, 
+            params.voteURI
+        );
+        IGovernanceTimeLock(timeLock).init(
+            params.timelockMinDelay, 
+            proposerList, 
+            executorList, 
+            params.owner
+        );
+        IGovernorContract(dao).init(
+            params.daoName, 
+            IVotes(vote), 
+            TimelockController(payable(timeLock)), 
+            params.governanceVotingDelay, 
+            params.governanceVotingPeriod, 
+            params.governanceQuorumPercentage, 
+            params.owner
+        );
         emit Create(id++, params.daoName, dao, vote, block.timestamp);
     }
 
+    /**
+     * @notice The fetchDaoStoage will return the list of create daos.
+     */
     function fetchDaoStoage() external view returns (DAO[] memory daolist) {
         uint256 size = id - 1;
         mapping(uint256=> DAO) storage _daostorage = daoStorage;
