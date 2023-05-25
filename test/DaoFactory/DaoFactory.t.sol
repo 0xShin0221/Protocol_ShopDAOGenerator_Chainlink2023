@@ -7,7 +7,7 @@ import "../../src/Governance/GovernorContract.sol";
 import "../../src/Votes/GovernanceNFTs.sol";
 import "../../src/Interfaces/IDaoFactory.sol";
 import "../../src/DaoFactory/DaoFactory.sol";
-
+import "../../src/Governance/SortedList.sol";
 import "../../src/Governance/GovernanceTimeLock.sol";
 contract DaoFactoryTest is Test, IDaoFactory {
     
@@ -16,6 +16,7 @@ contract DaoFactoryTest is Test, IDaoFactory {
     GovernanceTimeLock public immutable governanceTimeLock;
     GovernanceNFTs public immutable governanceNFTs;
     GovernorContract public immutable governorContract;
+    SortedList public immutable sortedList;
 
     /// Constant
     address constant ALICE = address(0x01);
@@ -38,6 +39,7 @@ contract DaoFactoryTest is Test, IDaoFactory {
     address[] public executorList = [address(0)];
     constructor() {
         OWNER = msg.sender;
+        sortedList = new SortedList();
         governanceNFTs = new GovernanceNFTs();
         governanceTimeLock = new GovernanceTimeLock(TIMELOCK_MIN_DELAY, proposerList, executorList, OWNER);
         governorContract = new GovernorContract(
@@ -63,7 +65,7 @@ contract DaoFactoryTest is Test, IDaoFactory {
     }
 
     function setUp() public {
-        daoFactory = new DaoFactory(address(governanceNFTs), address(governanceTimeLock), address(governorContract));
+        daoFactory = new DaoFactory(address(governanceNFTs), address(governanceTimeLock), address(governorContract), address(sortedList));
     }
 
     function testCreateAndFetchDaoStorage() public {

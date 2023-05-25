@@ -7,7 +7,9 @@ import "./customizedGovernor/extensions/GovernorVotesC.sol";
 import "./customizedGovernor/extensions/GovernorTimelockControlC.sol";
 import "./customizedGovernor/extensions/GovernorSettingsC.sol";
 import "./customizedGovernor/extensions/GovernorVotesQuorumFractionC.sol";
+import "../Interfaces/ISortedList.sol";
 import "@openzeppelin/contracts/access/AccessControl.sol";
+import "@openzeppelin/contracts/proxy/Clones.sol";
 /** 
  * @title GovernorContract
  * @notice The GovernorContract is a timelock controller that makes a specific schedule for owners to execute an approved proposal. 
@@ -23,8 +25,10 @@ contract GovernorContract is
 {
   ///Constant
   bytes32 public constant BRAND_MANAGER_ROLE = keccak256(abi.encode("BRAND_MANAGER_ROLE"));
-    
+  uint256 public constant EXTRA_DELAY = 10;
   /// Variable
+  ISortedList public proposeList;
+  ISortedList public queueAndExecutionList;
   bool private isInitialized;
   string private daoName;
   constructor(
@@ -67,7 +71,8 @@ contract GovernorContract is
     uint256 _votingDelay,
     uint256 _votingPeriod,
     uint256 _quorumPercentage,
-    address _owner
+    address _owner,
+    address _sortedList
   ) 
     external 
   {
@@ -82,6 +87,10 @@ contract GovernorContract is
     initGovernorVotes(_token);
     _updateQuorumNumerator(_quorumPercentage);
     _updateTimelock(_timelock);
+    proposeList = ISortedList(Clones.clone(_sortedList));
+    queueAndExecutionList = ISortedList(Clones.clone(_sortedList));
+    proposeList.init(_owner);
+    queueAndExecutionList.init(_owner);
   }
 
   /**
@@ -168,8 +177,16 @@ contract GovernorContract is
     uint256[] memory values,
     bytes[] memory calldatas,
     string memory description
-  ) public override(GovernorC, IGovernor) returns (uint256) {
-    return super.propose(targets, values, calldatas, description);
+  ) 
+    public 
+    override(GovernorC, IGovernor)  
+    onlyRole(BRAND_MANAGER_ROLE)  
+    returns (uint256) 
+  {
+    uint256 _proposalId = super.propose(targets, values, calldatas, description);
+    ISortedList.proposalInfo memory proposalParams = ISortedList.proposalInfo(targets, values, calldatas, description);
+    proposeList.addProposalId(proposalParams, proposalDeadline(_proposalId));
+    return _proposalId;
   }
 
   /** 
@@ -184,6 +201,25 @@ contract GovernorContract is
     return super.proposalThreshold();
   }
 
+  function queue(
+    address[] memory targets,
+    uint256[] memory values,
+    bytes[] memory calldatas,
+    bytes32 descriptionHash
+  ) 
+    public 
+    virtual 
+    override(GovernorTimelockControlC) 
+    returns (uint256) 
+  {
+    uint256 _proposalId = super.queue(targets, values, calldatas, descriptionHash);
+    (, , , string memory _description) = proposeList.getProposals(_proposalId);
+    ISortedList.proposalInfo memory proposalParams = ISortedList.proposalInfo(targets, values, calldatas, _description);
+    proposeList.removeProposalId(_proposalId);
+    queueAndExecutionList.addProposalId(proposalParams, block.timestamp + TimelockController(payable(timelock())).getMinDelay() + EXTRA_DELAY);
+    return _proposalId;
+  }
+
   function _execute(
     uint256 proposalId,
     address[] memory targets,
@@ -194,13 +230,30 @@ contract GovernorContract is
     super._execute(proposalId, targets, values, calldatas, descriptionHash);
   }
 
+    /**
+     * @dev Hook after execution is triggered.
+     */
+     function _afterExecute(
+      uint256 proposalId,
+      address[] memory targets,
+      uint256[] memory values,
+      bytes[] memory calldatas,
+      bytes32 descriptionHash
+  ) internal override(GovernorC) {
+    super._afterExecute(proposalId, targets, values, calldatas, descriptionHash);
+    queueAndExecutionList.removeProposalId(proposalId);
+  }
+
   function _cancel(
     address[] memory targets,
     uint256[] memory values,
     bytes[] memory calldatas,
     bytes32 descriptionHash
   ) internal override(GovernorC, GovernorTimelockControlC) returns (uint256) {
-    return super._cancel(targets, values, calldatas, descriptionHash);
+    uint256 proposalId = super._cancel(targets, values, calldatas, descriptionHash);
+    queueAndExecutionList.removeProposalId(proposalId);
+    return proposalId;
+  
   }
 
   function _executor()

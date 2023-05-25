@@ -18,6 +18,7 @@ interface IGovernorContract {
    * @param _votingPeriod  is the period that users can cast votes.
    * @param _quorumPercentage is the minmum percentange to pass a proposal. 
    * @param _owner is the owner address.
+   * @param _sortedList is proposal lists to be interacted with chainlink.  
    */
     function init(
         string memory _daoName,
@@ -26,7 +27,8 @@ interface IGovernorContract {
         uint256 _votingDelay,
         uint256 _votingPeriod,
         uint256 _quorumPercentage,
-        address _owner
+        address _owner,
+        address _sortedList
     ) 
         external;
 }

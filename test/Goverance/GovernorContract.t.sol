@@ -9,13 +9,14 @@ import "../../src/Votes/GovernanceNFTs.sol";
 import "../../src/Governance/GovernorContract.sol";
 import "../../src/Governance/GovernanceTimeLock.sol";
 import "../../src/targetContract/TargetContract.sol";
-
+import "../../src/Governance/SortedList.sol";
 contract GovernorContractTest is Test, IDaoFactory {
 
     /// Immutable
     address public immutable OWNER;
     GovernanceTimeLock public immutable governanceTimeLock;
     GovernanceNFTs public immutable governanceNFTs;
+    SortedList public immutable sortedList;
 
     /// Constant
     address constant ALICE = address(0x01);
@@ -73,6 +74,8 @@ contract GovernorContractTest is Test, IDaoFactory {
     
     constructor() {
         OWNER = msg.sender;
+
+        sortedList = new SortedList();
         governanceNFTs = new GovernanceNFTs();
         governanceTimeLock = new GovernanceTimeLock(TIMELOCK_MIN_DELAY, proposerList, executorList, OWNER);
         governorContract = new GovernorContract(
@@ -101,7 +104,7 @@ contract GovernorContractTest is Test, IDaoFactory {
     function setUp() public {
         vm.startPrank(OWNER); 
         targetContract = new TargetContract();
-        daoFactory = new DaoFactory(address(governanceNFTs), address(governanceTimeLock), address(governorContract));
+        daoFactory = new DaoFactory(address(governanceNFTs), address(governanceTimeLock), address(governorContract), address(sortedList));
         daoFactory.create(daoParams);
         (, address vote, address timelock, address dao,) = daoFactory.daoStorage(1);
         governorInstance = GovernorContract(payable(dao));
@@ -120,6 +123,12 @@ contract GovernorContractTest is Test, IDaoFactory {
         vm.prank(OWNER);  
         proposalId = governorInstance.propose(targets, values, calldatas, description);
         assertEq(proposalId, expectedProposalId);
+        (address[] memory _targetAddress, uint256[] memory _values, bytes[] memory _calldatas, string memory _description) = (governorInstance.proposeList()).getProposals(expectedProposalId);
+        
+        assertEq(targets[0], _targetAddress[0]);
+        assertEq(values[0], _values[0]);
+        assertEq(calldatas[0], _calldatas[0]);
+        assertEq(description, _description);
     }
 
     function testVote() public {
@@ -133,21 +142,13 @@ contract GovernorContractTest is Test, IDaoFactory {
         vm.stopPrank();     
     }   
 
-    function votePropose(uint8 _yesOrNo) public {
-        uint256 proposalId = testPropose();
-        vm.startPrank(OWNER);   
-        governanceNFTsInstance.delegate(OWNER);
-        vm.roll(5);
-        uint8 opinion = _yesOrNo; // 0 = no, 1 = yes, 2 = giving up
-        governorInstance.castVote(proposalId, opinion);
-        vm.stopPrank();     
-    }  
 
     function testQueue() public {
         testVote();
         vm.startPrank(OWNER);   
         vm.roll(GOVERNANCE_VOTING_PERIOD + 2); /// set up the the block number for queue
         governorInstance.queue(targets, values, calldatas, descriptionHash);
+        vm.stopPrank();     
     }
 
     /// Failure : the votting period is not passed yet

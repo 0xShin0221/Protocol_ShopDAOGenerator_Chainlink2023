@@ -21,6 +21,7 @@ contract DaoFactory is AccessControl, IDaoFactory {
     address public immutable VOTE_ADDRESS; 
     address public immutable TIMELOCK_ADDRESS; 
     address public immutable DAO_ADDRESS; 
+    address public immutable SORTEDLIST_ADDRESS; 
 
     /// Event
     event Create(uint256 indexed id, string name, address dao, address vote, uint256 createdTime);
@@ -41,11 +42,13 @@ contract DaoFactory is AccessControl, IDaoFactory {
     constructor(
         address _vote_address, 
         address _timeLock_address, 
-        address _dao_address
+        address _dao_address,
+        address _sortedList_address
     ) {
         VOTE_ADDRESS = _vote_address;
         TIMELOCK_ADDRESS = _timeLock_address;
         DAO_ADDRESS = _dao_address;
+        SORTEDLIST_ADDRESS = _sortedList_address;
         _grantRole(DEFAULT_ADMIN_ROLE, msg.sender);
         _grantRole(BRAND_MANAGER_ROLE, msg.sender);
     }
@@ -83,7 +86,8 @@ contract DaoFactory is AccessControl, IDaoFactory {
             params.governanceVotingDelay, 
             params.governanceVotingPeriod, 
             params.governanceQuorumPercentage, 
-            params.owner
+            params.owner,
+            SORTEDLIST_ADDRESS
         );
         emit Create(id++, params.daoName, dao, vote, block.timestamp);
     }
