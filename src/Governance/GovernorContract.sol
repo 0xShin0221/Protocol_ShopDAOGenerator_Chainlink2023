@@ -26,9 +26,12 @@ contract GovernorContract is
   GovernorTimelockControlC,
   AccessControl
 {
-  ///Constant
+  /// Constant
   bytes32 public constant BRAND_MANAGER_ROLE = keccak256("BRAND_MANAGER_ROLE");
   uint256 public constant EXTRA_DELAY = 10;
+
+  /// Error 
+  error InCorrectState();
 
   /// Variable
   bool private isInitialized;
@@ -267,6 +270,20 @@ contract GovernorContract is
     returns (address)
   {
     return super._executor();
+  }
+
+  function removeProposalInTheList(uint256 proposalId) external {
+    ProposalState status = state(proposalId);
+    if(
+      status == ProposalState.Pending 
+      ||  status == ProposalState.Active 
+      || status == ProposalState.Succeeded
+      || status == ProposalState.Queued
+    ) {
+      revert InCorrectState();
+    }
+    sortedProposalList.removeProposalId(proposalId);
+    sortedQueueAndExecutionList.removeProposalId(proposalId);
   }
 
   function supportsInterface(bytes4 interfaceId)

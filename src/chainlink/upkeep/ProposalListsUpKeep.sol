@@ -10,6 +10,7 @@ contract ProposalListsUpKeep is AutomationCompatibleInterface {
     
     /// Event 
     event QueueFromUpkeep(uint256 proposalId);
+    event RemoveProposalInTheListFromUpkeep(uint256 proposalId);
 
     constructor(address _sorted_proposal_list_address) {
         SORTED_PROPOSAL_LIST = ISortedList(_sorted_proposal_list_address); 
@@ -40,8 +41,15 @@ contract ProposalListsUpKeep is AutomationCompatibleInterface {
          (uint256 earliestBlockOfProposal, uint256 earliestDateOfproposalId) = SORTED_PROPOSAL_LIST.getEarlistEndOfDate();
          if (earliestBlockOfProposal < block.number) {
             (address currentDaoAddress, address[] memory targetAddress, uint256[] memory values, bytes[] memory calldatas, string memory description) = SORTED_PROPOSAL_LIST.getProposals(earliestDateOfproposalId);
-            IGovernorContract(currentDaoAddress).queue(targetAddress, values, calldatas, keccak256(bytes(description)));
-            emit QueueFromUpkeep(earliestDateOfproposalId);
+            uint256 currentState = uint256(IGovernorContract(currentDaoAddress).state(earliestDateOfproposalId));
+            /// currentState == 4 (ProposalState.Succeeded)
+            if(currentState == 4) {
+                IGovernorContract(currentDaoAddress).queue(targetAddress, values, calldatas, keccak256(bytes(description)));
+                emit QueueFromUpkeep(earliestDateOfproposalId);
+            }else {
+                IGovernorContract(currentDaoAddress).removeProposalInTheList(earliestDateOfproposalId);
+                emit RemoveProposalInTheListFromUpkeep(earliestDateOfproposalId);
+            }
         }
     }
 

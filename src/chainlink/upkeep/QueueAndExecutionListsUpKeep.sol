@@ -41,8 +41,15 @@ contract QueueAndExecutionListsUpKeep is AutomationCompatibleInterface {
         (uint256 earliestDateOfQueueProposal, uint256 earliestDateOfQueueProposalId) = SORTED_QUEUE_AND_EXECUTION_LIST.getEarlistEndOfDate();
         if (earliestDateOfQueueProposal < block.timestamp) {
            (address currentDaoAddress, address[] memory targetAddress, uint256[] memory values, bytes[] memory calldatas, string memory description) = SORTED_QUEUE_AND_EXECUTION_LIST.getProposals(earliestDateOfQueueProposalId);
-           IGovernorContract(currentDaoAddress).execute(targetAddress, values, calldatas, keccak256(bytes(description)));
-           emit ExecutionFromUpkeep(earliestDateOfQueueProposalId);
+           uint256 currentState = uint256(IGovernorContract(currentDaoAddress).state(earliestDateOfQueueProposalId));
+           /// currentState == 5 (ProposalState.Queued)
+           if(urrentState == 5) {
+                IGovernorContract(currentDaoAddress).execute(targetAddress, values, calldatas, keccak256(bytes(description)));
+                emit ExecutionFromUpkeep(earliestDateOfQueueProposalId);
+           } else{
+                IGovernorContract(currentDaoAddress).removeProposalInTheList(earliestDateOfQueueProposalId);
+                emit RemoveProposalInTheListFromUpkeep(earliestDateOfQueueProposalId);
+           }
        }
    }
 
