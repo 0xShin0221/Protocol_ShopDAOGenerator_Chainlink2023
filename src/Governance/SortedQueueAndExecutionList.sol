@@ -1,70 +1,76 @@
 //SPDX-License-Identifier: MIT
 pragma solidity ^0.8.9;
-/// ["0xb27A31f1b0AF2946B7F582768f03239b1eC07c2c", 0, "0x50bddaa9e2ac5ffe783665e8e1d8154df0b3b6663719a3b22aa692d737540292", "aad124534454534544343131313131533542sa"]
+
 import "@openzeppelin/contracts/access/AccessControl.sol";
 import "../Interfaces/ISortedList.sol";
 
-contract SortedList is AccessControl, ISortedList {
+contract SortedQueueAndExecutionList is AccessControl, ISortedList {
   /// Constants
-  bytes32 constant public BRAND_MANAGER_ROLE = keccak256(abi.encode("BRAND_MANAGER_ROLE"));
+  bytes32 public constant BRAND_MANAGER_ROLE = keccak256("BRAND_MANAGER_ROLE");
   uint256 constant GUARD = 1;
 
-  /// ERROR
-  error AlreadyInitialized();
-  error OnlyRegisterAddressOnce();
-  error OnlyRegisteredAddress();
-  error OnlyRemoveMySelf();
-
-  /// Modifier 
-  modifier onlyRegisteredAddress(uint256 _proposalId) {
-    if(_secondEarliestProposalId[_proposalId] == uint256(0)){
-      revert OnlyRegisteredAddress();
-    }
-    _;
-  }
-
-  bool private isInitialized;
+  /// Error
+  error OnlyRegisterProposalIdOnce();
+  
+  /// Variable
   uint256 public listSize;
+  mapping(uint256 => address) public daoByProposalId;
   mapping(uint256 => uint256) public proposalIds;
   mapping(uint256 => uint256) private _secondEarliestProposalId;
   mapping(uint256 => proposalInfo) private proposals;
   
-  constructor() {}
-
-  function init(address _owner) external  {
-    if(isInitialized) revert AlreadyInitialized();
-    isInitialized = true;
+  constructor() {
     _secondEarliestProposalId[GUARD] = GUARD;
-    _setupRole(DEFAULT_ADMIN_ROLE, _owner);
-    _setupRole(BRAND_MANAGER_ROLE, _owner);
+    _setupRole(DEFAULT_ADMIN_ROLE, msg.sender);
     _setupRole(BRAND_MANAGER_ROLE, msg.sender);
   }
 
-  function getProposals(uint256 id) external view returns (address[] memory, uint256[] memory, bytes[] memory, string memory) {
-    return (proposals[id].targetAddress, proposals[id].values, proposals[id].calldatas, proposals[id].description);
+  function getProposals(uint256 id) 
+    external 
+    view 
+    returns (
+      address, 
+      address[] memory, 
+      uint256[] memory, 
+      bytes[] memory, 
+      string memory
+    ) 
+  {
+    return (daoByProposalId[id], proposals[id].targetAddress, proposals[id].values, proposals[id].calldatas, proposals[id].description);
   }
 
-  function addProposalId(proposalInfo calldata params, uint256 _epochTime) external onlyRole(BRAND_MANAGER_ROLE)  {
-    proposalInfo memory _proposalInfo = proposalInfo(params.targetAddress, params.values, params.calldatas, params.description);
-    uint256 _proposalId = uint256(keccak256(abi.encode(params.targetAddress, params.values, params.calldatas, keccak256(bytes(params.description)))));
+  function addProposalId(
+    address currentDao,
+    address[] calldata _targetAddress, 
+    uint256[] calldata _values,
+    bytes[] calldata _calldatas,
+    string calldata _description,
+    uint256 _epochTime
+  ) 
+    external 
+    onlyRole(BRAND_MANAGER_ROLE)  
+  {
+    uint256 _proposalId = uint256(keccak256(abi.encode(_targetAddress, _values, _calldatas, keccak256(bytes(_description)))));
     if(_secondEarliestProposalId[_proposalId] != uint256(0)){
-      revert OnlyRegisterAddressOnce();
+      revert OnlyRegisterProposalIdOnce();
     }
-    proposals[_proposalId] = _proposalInfo;
+    proposals[_proposalId] = proposalInfo(_targetAddress, _values, _calldatas, _description);
     uint256 index = _findIndex(_epochTime);
     proposalIds[_proposalId] = _epochTime;
     _secondEarliestProposalId[_proposalId] = _secondEarliestProposalId[index];
     _secondEarliestProposalId[index] = _proposalId;
+    daoByProposalId[_proposalId] = currentDao;
     listSize++;
   }
 
-  function removeProposalId(uint256 _proposalId) external onlyRole(BRAND_MANAGER_ROLE) onlyRegisteredAddress(_proposalId) {
+  function removeProposalId(uint256 _proposalId) external onlyRole(BRAND_MANAGER_ROLE) {
     uint256 preOrderVault = _getPrevOrderProposalId(_proposalId);
     _secondEarliestProposalId[preOrderVault] = _secondEarliestProposalId[_proposalId];
     _secondEarliestProposalId[_proposalId] = uint256(0);
     proposalIds[_proposalId] = 0;
     listSize--;
     delete proposals[_proposalId];
+    delete daoByProposalId[_proposalId];
   }
 
   function getList(uint256 _size) external view returns(uint256[] memory) {

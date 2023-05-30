@@ -8,6 +8,7 @@ import "../Interfaces/IDaoFactory.sol";
 import "../Interfaces/IGoveranceNFTs.sol";
 import "../Interfaces/IGovernanceTimeLock.sol";
 import "../Interfaces/IGovernorContract.sol";
+import "../Interfaces/ISortedList.sol";
 /** 
  * @title DaoFactory
  * @notice Only brand managers can use DaoFactory to create a new dao. 
@@ -15,14 +16,14 @@ import "../Interfaces/IGovernorContract.sol";
 contract DaoFactory is AccessControl, IDaoFactory {
 
     ///Constant
-    bytes32 constant public BRAND_MANAGER_ROLE = keccak256(abi.encode("BRAND_MANAGER_ROLE"));
+    bytes32 public constant BRAND_MANAGER_ROLE = keccak256("BRAND_MANAGER_ROLE");
 
     /// Immutable
     address public immutable VOTE_ADDRESS; 
     address public immutable TIMELOCK_ADDRESS; 
     address public immutable DAO_ADDRESS; 
-    address public immutable SORTEDLIST_ADDRESS; 
-
+    ISortedList public immutable sortedProposalList;
+    ISortedList public immutable sortedQueueAndExecutionList;
     /// Event
     event Create(uint256 indexed id, string name, address dao, address vote, uint256 createdTime);
 
@@ -34,6 +35,7 @@ contract DaoFactory is AccessControl, IDaoFactory {
         address dao;
         uint256 createdTime;
     }
+   
     mapping(uint256 => DAO) public daoStorage; 
     uint256 public id = 1;
     address[] public proposerList;
@@ -43,14 +45,16 @@ contract DaoFactory is AccessControl, IDaoFactory {
         address _vote_address, 
         address _timeLock_address, 
         address _dao_address,
-        address _sortedList_address
+        address _sortedProposalList,
+        address _sortedQueueAndExecutionList
     ) {
         VOTE_ADDRESS = _vote_address;
         TIMELOCK_ADDRESS = _timeLock_address;
         DAO_ADDRESS = _dao_address;
-        SORTEDLIST_ADDRESS = _sortedList_address;
         _grantRole(DEFAULT_ADMIN_ROLE, msg.sender);
         _grantRole(BRAND_MANAGER_ROLE, msg.sender);
+        sortedProposalList = ISortedList(_sortedProposalList);
+        sortedQueueAndExecutionList = ISortedList(_sortedQueueAndExecutionList);
     }
 
     /**
@@ -65,6 +69,10 @@ contract DaoFactory is AccessControl, IDaoFactory {
         address vote = Clones.clone(VOTE_ADDRESS);
         address timeLock = Clones.clone(TIMELOCK_ADDRESS);
         address dao = Clones.clone(DAO_ADDRESS);
+        
+        AccessControl(address(sortedProposalList)).grantRole(BRAND_MANAGER_ROLE, dao);
+        AccessControl(address(sortedQueueAndExecutionList)).grantRole(BRAND_MANAGER_ROLE, dao);
+        
         daoStorage[id] = (DAO(params.daoName, vote, timeLock, dao, block.timestamp));
         IGoveranceNFTs(vote).init(
             params.owner, 
@@ -87,8 +95,10 @@ contract DaoFactory is AccessControl, IDaoFactory {
             params.governanceVotingPeriod, 
             params.governanceQuorumPercentage, 
             params.owner,
-            SORTEDLIST_ADDRESS
+            address(sortedProposalList),
+            address(sortedQueueAndExecutionList)
         );
+
         emit Create(id++, params.daoName, dao, vote, block.timestamp);
     }
 
@@ -103,5 +113,4 @@ contract DaoFactory is AccessControl, IDaoFactory {
             daolist[i] = _daostorage[i];
         }
     }
-
 }

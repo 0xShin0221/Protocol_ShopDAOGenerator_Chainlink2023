@@ -1,15 +1,18 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.9;
-
+import "forge-std/console.sol";
 import "./customizedGovernor/GovernorC.sol";
 import "./customizedGovernor/extensions/GovernorCountingSimpleC.sol";
 import "./customizedGovernor/extensions/GovernorVotesC.sol";
 import "./customizedGovernor/extensions/GovernorTimelockControlC.sol";
 import "./customizedGovernor/extensions/GovernorSettingsC.sol";
 import "./customizedGovernor/extensions/GovernorVotesQuorumFractionC.sol";
-import "../Interfaces/ISortedList.sol";
+import "./SortedProposalList.sol";
+import "./SortedQueueAndExecutionList.sol";
 import "@openzeppelin/contracts/access/AccessControl.sol";
-import "@openzeppelin/contracts/proxy/Clones.sol";
+import "@openzeppelin/contracts/governance/TimelockController.sol";
+import "../Interfaces/ISortedList.sol";
+
 /** 
  * @title GovernorContract
  * @notice The GovernorContract is a timelock controller that makes a specific schedule for owners to execute an approved proposal. 
@@ -24,13 +27,16 @@ contract GovernorContract is
   AccessControl
 {
   ///Constant
-  bytes32 public constant BRAND_MANAGER_ROLE = keccak256(abi.encode("BRAND_MANAGER_ROLE"));
+  bytes32 public constant BRAND_MANAGER_ROLE = keccak256("BRAND_MANAGER_ROLE");
   uint256 public constant EXTRA_DELAY = 10;
+
   /// Variable
-  ISortedList public proposeList;
-  ISortedList public queueAndExecutionList;
   bool private isInitialized;
   string private daoName;
+  ISortedList public sortedProposalList; 
+  ISortedList public sortedQueueAndExecutionList; 
+  TimelockController public timelockControlloer;
+
   constructor(
     string memory _daoName,
     IVotes _token,
@@ -72,7 +78,8 @@ contract GovernorContract is
     uint256 _votingPeriod,
     uint256 _quorumPercentage,
     address _owner,
-    address _sortedList
+    address _sortedProposalList,
+    address _sortedQueueAndExecutionList
   ) 
     external 
   {
@@ -87,10 +94,9 @@ contract GovernorContract is
     initGovernorVotes(_token);
     _updateQuorumNumerator(_quorumPercentage);
     _updateTimelock(_timelock);
-    proposeList = ISortedList(Clones.clone(_sortedList));
-    queueAndExecutionList = ISortedList(Clones.clone(_sortedList));
-    proposeList.init(_owner);
-    queueAndExecutionList.init(_owner);
+    sortedProposalList = ISortedList(_sortedProposalList); 
+    sortedQueueAndExecutionList = ISortedList(_sortedQueueAndExecutionList);
+    timelockControlloer = _timelock; 
   }
 
   /**
@@ -184,13 +190,12 @@ contract GovernorContract is
     returns (uint256) 
   {
     uint256 _proposalId = super.propose(targets, values, calldatas, description);
-    ISortedList.proposalInfo memory proposalParams = ISortedList.proposalInfo(targets, values, calldatas, description);
-    proposeList.addProposalId(proposalParams, proposalDeadline(_proposalId));
+    sortedProposalList.addProposalId(address(this), targets, values, calldatas, description, proposalDeadline(_proposalId) + EXTRA_DELAY);
     return _proposalId;
   }
 
   /** 
-   * @notice The proposalThreshold function return the threshold of proposal.
+   * @notice The proposalThreshold function returns the threshold of proposal.
    */
   function proposalThreshold()
     public
@@ -212,12 +217,11 @@ contract GovernorContract is
     override(GovernorTimelockControlC) 
     returns (uint256) 
   {
-    uint256 _proposalId = super.queue(targets, values, calldatas, descriptionHash);
-    (, , , string memory _description) = proposeList.getProposals(_proposalId);
-    ISortedList.proposalInfo memory proposalParams = ISortedList.proposalInfo(targets, values, calldatas, _description);
-    proposeList.removeProposalId(_proposalId);
-    queueAndExecutionList.addProposalId(proposalParams, block.timestamp + TimelockController(payable(timelock())).getMinDelay() + EXTRA_DELAY);
-    return _proposalId;
+    uint256 proposalId = super.queue(targets, values, calldatas, descriptionHash);
+    (, , , , string memory description) = sortedProposalList.getProposals(proposalId);
+    sortedProposalList.removeProposalId(proposalId);
+    sortedQueueAndExecutionList.addProposalId(address(this), targets, values, calldatas, description, block.timestamp + timelockControlloer.getMinDelay() + EXTRA_DELAY);
+    return proposalId;
   }
 
   function _execute(
@@ -241,7 +245,7 @@ contract GovernorContract is
       bytes32 descriptionHash
   ) internal override(GovernorC) {
     super._afterExecute(proposalId, targets, values, calldatas, descriptionHash);
-    queueAndExecutionList.removeProposalId(proposalId);
+    sortedQueueAndExecutionList.removeProposalId(proposalId);
   }
 
   function _cancel(
@@ -251,9 +255,9 @@ contract GovernorContract is
     bytes32 descriptionHash
   ) internal override(GovernorC, GovernorTimelockControlC) returns (uint256) {
     uint256 proposalId = super._cancel(targets, values, calldatas, descriptionHash);
-    queueAndExecutionList.removeProposalId(proposalId);
+    sortedProposalList.removeProposalId(proposalId);
+    sortedQueueAndExecutionList.removeProposalId(proposalId);
     return proposalId;
-  
   }
 
   function _executor()
@@ -273,4 +277,6 @@ contract GovernorContract is
   {
     return super.supportsInterface(interfaceId);
   }
+
+
 }

@@ -10,7 +10,7 @@ import "@openzeppelin/contracts/access/AccessControl.sol";
 contract GovernanceNFTs is ERC721AVotes, AccessControl {
     
     ///Constant
-    bytes32 constant public BRAND_MANAGER_ROLE = keccak256(abi.encode("BRAND_MANAGER_ROLE"));
+    bytes32 public constant BRAND_MANAGER_ROLE = keccak256("BRAND_MANAGER_ROLE");
 
     /// Error
     error ExceedsMaximumSupply();
