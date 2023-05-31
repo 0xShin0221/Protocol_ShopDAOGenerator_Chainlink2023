@@ -3,7 +3,7 @@ include .env
 export $(shell sed 's/=.*//' .env)
 
 chainlinkSimulate:
-	npx hardhat functions-simulate --configpath $(CHAINLINK_CONFIG_PATH)
+	npx hardhat functions-simulate --configpath $(CHAINLINK_CONFIG_PATH)  --show-stack-traces
 
 chainlinkClientCreate:
 	npx hardhat functions-deploy-client --network polygonMumbai --verify true

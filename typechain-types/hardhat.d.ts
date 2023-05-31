@@ -61,14 +61,6 @@ declare module "hardhat/types/runtime" {
       signerOrOptions?: ethers.Signer | FactoryOptions
     ): Promise<Contracts.MockV3Aggregator__factory>;
     getContractFactory(
-      name: "AutomationBase",
-      signerOrOptions?: ethers.Signer | FactoryOptions
-    ): Promise<Contracts.AutomationBase__factory>;
-    getContractFactory(
-      name: "AutomationCompatible",
-      signerOrOptions?: ethers.Signer | FactoryOptions
-    ): Promise<Contracts.AutomationCompatible__factory>;
-    getContractFactory(
       name: "ConfirmedOwner",
       signerOrOptions?: ethers.Signer | FactoryOptions
     ): Promise<Contracts.ConfirmedOwner__factory>;
@@ -84,10 +76,6 @@ declare module "hardhat/types/runtime" {
       name: "AggregatorV3Interface",
       signerOrOptions?: ethers.Signer | FactoryOptions
     ): Promise<Contracts.AggregatorV3Interface__factory>;
-    getContractFactory(
-      name: "AutomationCompatibleInterface",
-      signerOrOptions?: ethers.Signer | FactoryOptions
-    ): Promise<Contracts.AutomationCompatibleInterface__factory>;
     getContractFactory(
       name: "ERC677ReceiverInterface",
       signerOrOptions?: ethers.Signer | FactoryOptions
@@ -438,16 +426,6 @@ declare module "hardhat/types/runtime" {
       signer?: ethers.Signer
     ): Promise<Contracts.MockV3Aggregator>;
     getContractAt(
-      name: "AutomationBase",
-      address: string,
-      signer?: ethers.Signer
-    ): Promise<Contracts.AutomationBase>;
-    getContractAt(
-      name: "AutomationCompatible",
-      address: string,
-      signer?: ethers.Signer
-    ): Promise<Contracts.AutomationCompatible>;
-    getContractAt(
       name: "ConfirmedOwner",
       address: string,
       signer?: ethers.Signer
@@ -467,11 +445,6 @@ declare module "hardhat/types/runtime" {
       address: string,
       signer?: ethers.Signer
     ): Promise<Contracts.AggregatorV3Interface>;
-    getContractAt(
-      name: "AutomationCompatibleInterface",
-      address: string,
-      signer?: ethers.Signer
-    ): Promise<Contracts.AutomationCompatibleInterface>;
     getContractAt(
       name: "ERC677ReceiverInterface",
       address: string,
