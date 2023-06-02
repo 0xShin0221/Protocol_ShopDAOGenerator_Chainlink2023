@@ -46,7 +46,7 @@ contract ProposalListsUpKeep is AutomationCompatibleInterface {
             if(currentState == 4) {
                 IGovernorContract(currentDaoAddress).queue(targetAddress, values, calldatas, keccak256(bytes(description)));
                 emit QueueFromUpkeep(earliestDateOfproposalId);
-            }else {
+            } else {
                 IGovernorContract(currentDaoAddress).removeProposalInTheList(earliestDateOfproposalId);
                 emit RemoveProposalInTheListFromUpkeep(earliestDateOfproposalId);
             }

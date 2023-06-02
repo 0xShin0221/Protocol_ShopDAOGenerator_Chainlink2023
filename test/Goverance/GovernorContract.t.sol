@@ -34,6 +34,7 @@ contract GovernorContractTest is Test, IDaoFactory {
     uint256 constant GOVERNANCE_QUORUM_PERCENTAGE = 100; /// 100 %
     bytes32 public constant BRAND_MANAGER_ROLE = keccak256("BRAND_MANAGER_ROLE");
     bytes32 public constant DEFAULT_ADMIN_ROLE = 0x00;
+    
     /// Event
     event ProposalCreated(
         uint256 proposalId,
@@ -125,6 +126,8 @@ contract GovernorContractTest is Test, IDaoFactory {
 
         /// Proposal setting
         targets[0] = address(targetContract);
+        governanceNFTsInstance.delegate(OWNER);
+        vm.roll(block.number + 1);
         vm.stopPrank(); 
     }
 
@@ -132,6 +135,7 @@ contract GovernorContractTest is Test, IDaoFactory {
     function testPropose() public returns (uint256 proposalId) {
         uint256 expectedProposalId = uint256(keccak256(abi.encode(targets, values, calldatas, keccak256(bytes(description)))));
         vm.prank(OWNER);  
+
         proposalId = governorInstance.propose(targets, values, calldatas, description);
         assertEq(proposalId, expectedProposalId);
         (address currentDaoAddress, address[] memory _targetAddress, uint256[] memory _values, bytes[] memory _calldatas, string memory _description) = ISortedList(governorInstance.sortedProposalList()).getProposals(expectedProposalId);
@@ -145,7 +149,7 @@ contract GovernorContractTest is Test, IDaoFactory {
     function testVote() public {
         uint256 proposalId = testPropose();
         vm.startPrank(OWNER);   
-        governanceNFTsInstance.delegate(OWNER);
+
         vm.roll(5);
         uint8 opinion = 1; // 0 = no, 1 = yes, 2 = giving up
         governorInstance.castVote(proposalId, opinion);
@@ -157,7 +161,7 @@ contract GovernorContractTest is Test, IDaoFactory {
     function testQueue() public {
         testVote();
         vm.startPrank(OWNER);   
-        vm.roll(GOVERNANCE_VOTING_PERIOD + 2); /// set up the the block number for queue
+        vm.roll(GOVERNANCE_VOTING_PERIOD + block.number); /// set up the the block number for queue
         console.log("msg.sender", msg.sender );
         governorInstance.queue(targets, values, calldatas, descriptionHash);
         vm.stopPrank();     

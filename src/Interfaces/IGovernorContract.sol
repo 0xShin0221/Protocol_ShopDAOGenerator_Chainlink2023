@@ -7,7 +7,16 @@ import "@openzeppelin/contracts/governance/TimelockController.sol";
  * @title IGovernorContract 
  */
 interface IGovernorContract {
-  
+    enum ProposalState {
+        Pending,
+        Active,
+        Canceled,
+        Defeated,
+        Succeeded,
+        Queued,
+        Expired,
+        Executed
+    }
   /**
    * @notice The init function is to set up values in the constructor of inherited contracts required for DAO.
    * @dev It is only executed only once right after clonning GovernorContract. 
@@ -50,4 +59,10 @@ interface IGovernorContract {
         bytes[] memory calldatas,
         bytes32 descriptionHash
     ) external payable returns (uint256);
+
+    function state(uint256 proposalId)
+    external
+    view
+    returns (ProposalState);
+    function removeProposalInTheList(uint256 proposalId) external;
 }
