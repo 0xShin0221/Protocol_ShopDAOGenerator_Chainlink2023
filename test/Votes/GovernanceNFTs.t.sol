@@ -6,6 +6,8 @@ import "forge-std/console.sol";
 import "../../src/Votes/GovernanceNFTs.sol";
 contract GovernanceNFTsTest is Test{
     uint256 public constant MAX_SUPPLY = 10000;
+    uint256 public constant VOTE_PRICE = 0;
+    
     string public constant NFT_NAME = "ShopDao";
     string public constant NFT_SYMBOL = "ShopDao";
     string public constant NFT_URI1 = "ShopDao_URI";
@@ -18,7 +20,7 @@ contract GovernanceNFTsTest is Test{
     function setUp() public {
         owner = msg.sender; 
         governanceNFTs = new GovernanceNFTs();
-        governanceNFTs.init(owner, MAX_SUPPLY, NFT_NAME, NFT_SYMBOL, NFT_URI1);
+        governanceNFTs.init(owner, MAX_SUPPLY, VOTE_PRICE, NFT_NAME, NFT_SYMBOL, NFT_URI1);
         vm.prank(owner);
     }
 
@@ -34,7 +36,7 @@ contract GovernanceNFTsTest is Test{
 
     /// Failure : The function can be executed only once.
     function testFailInit() public {
-        governanceNFTs.init(owner, 10000, "ShopDao", "ShopDao", "ShopDao_URI");
+        governanceNFTs.init(owner, 10000, 0,"ShopDao", "ShopDao", "ShopDao_URI");
         uint256 currentBalance = governanceNFTs.balanceOf(ALICE);
         assertEq(currentBalance, 100);
     }

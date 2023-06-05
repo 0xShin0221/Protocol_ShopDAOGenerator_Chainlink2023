@@ -33,6 +33,8 @@ contract GovernorContractTest_Fork is Test, IDaoFactory {
     address constant ALICE = address(0x01);
     string constant DAO_NAME = "Suprem3 DAO";
     uint256 constant MAXIMUM_SUPPLY = 10000;
+    uint256 constant VOTE_PRICE = 0;
+    
     string constant VOTE_NAME = "GRAND OPENING VOTES";
     string constant VOTE_SYMBOL = "GOV";
     string constant VOTE_URI = "ipfs://metadata.json";
@@ -102,6 +104,7 @@ contract GovernorContractTest_Fork is Test, IDaoFactory {
             DAO_NAME, 
             OWNER, 
             MAXIMUM_SUPPLY, 
+            VOTE_PRICE,
             VOTE_NAME, 
             VOTE_SYMBOL, 
             VOTE_URI,    

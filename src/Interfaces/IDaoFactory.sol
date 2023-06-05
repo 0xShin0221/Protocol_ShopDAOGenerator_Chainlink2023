@@ -12,6 +12,7 @@ interface IDaoFactory {
      * @param daoName is the name of dao.
      * @param owner is the address of owner.
      * @param voteMaximumSupply is the maximum supply of a NFT used as votes.
+     * @param votePrice is the price of a NFT used as votes.
      * @param voteName is the name of a NFT used as votes.
      * @param voteSymbol is the symbol of a NFT used as votes.
      * @param voteURI is the URI of a NFT used as votes.
@@ -23,6 +24,7 @@ interface IDaoFactory {
         string daoName;
         address owner;
         uint256 voteMaximumSupply;
+        uint256 votePrice;
         string voteName;
         string voteSymbol;
         string voteURI;

@@ -77,6 +77,7 @@ contract DaoFactory is AccessControl, IDaoFactory {
         IGoveranceNFTs(vote).init(
             params.owner, 
             params.voteMaximumSupply, 
+            params.votePrice,
             params.voteName, 
             params.voteSymbol, 
             params.voteURI

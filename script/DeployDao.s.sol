@@ -17,6 +17,7 @@ contract DeployDao is Script, IDaoFactory {
     
     string constant DAO_NAME = "Suprem3 DAO";
     uint256 constant MAXIMUM_SUPPLY = 10000;
+    uint256 constant VOTE_PRICE = 0;
     string constant VOTE_NAME = "GRAND OPENING VOTES";
     string constant VOTE_SYMBOL = "GOV";
     string constant VOTE_URI = "ipfs://metadata.json";
@@ -71,6 +72,7 @@ contract DeployDao is Script, IDaoFactory {
             DAO_NAME, 
             owner, 
             MAXIMUM_SUPPLY, 
+            VOTE_PRICE,
             VOTE_NAME, 
             VOTE_SYMBOL, 
             VOTE_URI,    
