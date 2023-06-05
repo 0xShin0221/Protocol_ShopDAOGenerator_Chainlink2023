@@ -1,11 +1,11 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.9;
 
-import "ERC721A/extensions/ERC721ABurnable.sol";
+import "ERC721A/extensions/ERC721AQueryable.sol";
 import "@openzeppelin/contracts/access/AccessControl.sol";
 
 
-contract Profit is ERC721ABurnable, AccessControl {
+contract Profit is ERC721AQueryable, AccessControl {
     ///Constant
     bytes32 public constant BRAND_MANAGER_ROLE = keccak256("BRAND_MANAGER_ROLE");
 
