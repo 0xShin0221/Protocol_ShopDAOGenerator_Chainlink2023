@@ -2,7 +2,7 @@
 
 - [First draft architecure](./docs/architecrure/v1C4Architecture.md)
 
-WIP, so there may be potential changes or deviations from the current configuration.
+[WIP] So there may be potential changes or deviations from the current configuration.
 
 ## Deployed Contract
 
