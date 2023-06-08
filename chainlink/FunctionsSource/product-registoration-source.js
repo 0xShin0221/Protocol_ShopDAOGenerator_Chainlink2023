@@ -7,17 +7,17 @@ const productOptionsJsonString = args[5];
 const productImagesJsonString = args[6];
 const productInitialInventories = args[7];
 
-if (secrets.apiKey === undefined) {
-  throw new Error(
-    "API key and API URL are required for request ShopDAO generator API endpoint"
-  );
-}
+// if (secrets.apiKey === undefined) {
+//   throw new Error(
+//     "API key and API URL are required for request ShopDAO generator API endpoint"
+//   );
+// }
 const salesDistributionRequest = await Functions.makeHttpRequest({
   url: baseApiUrl + endpoint,
   method: "POST",
   headers: {
     "Content-Type": "application/json",
-    Authorization: secrets.apiKey,
+    // Authorization: secrets.apiKey,
   },
   data: {
     productProfitRightNFTAddress,
@@ -28,9 +28,8 @@ const salesDistributionRequest = await Functions.makeHttpRequest({
     productInitialInventories,
   },
 });
-console.log("salesDistributionRequest", salesDistributionRequest);
 const salesDistributionResponse = await salesDistributionRequest;
-console.log("salesDistributionResponse", salesDistributionResponse);
+
 if (salesDistributionResponse.error) {
   throw new Error("Error fetching sales distribution");
 }

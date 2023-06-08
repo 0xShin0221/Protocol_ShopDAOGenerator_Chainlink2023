@@ -28,7 +28,7 @@ const requestConfig = {
   // location of source code (only Inline is curently supported)
   codeLocation: Location.Inline,
   // location of secrets (Inline or Remote)
-  secretsLocation: Location.Inline,
+  // secretsLocation: Location.Inline,
   // code language (only JavaScript is currently supported)
   codeLanguage: CodeLanguage.JavaScript,
   // string containing the source code to be executed
@@ -36,10 +36,10 @@ const requestConfig = {
     .readFileSync("chainlink/FunctionsSource/product-registoration-source.js")
     .toString(),
   // secrets can be accessed within the source code with `secrets.varName` (ie: secrets.apiKey)
-  secrets: {
-    apiKey: process.env.SHOPDAO_G_API_KEY ?? "",
-    apiUrl: process.env.SHOPDAO_G_API_URL ?? "",
-  },
+  // secrets: {
+  //   apiKey: process.env.SHOPDAO_G_API_KEY ?? "",
+  //   apiUrl: process.env.SHOPDAO_G_API_URL ?? "",
+  // },
   // args can be accessed within the source code with `args[index]` (ie: args[0])
   args: [
     "chainlink/productRegistoration",
