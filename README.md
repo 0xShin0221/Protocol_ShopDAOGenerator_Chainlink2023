@@ -1,25 +1,13 @@
+## Architecture based Smart Contracts
 
-## How To Play 🕹️
+- [First draft architecure](./docs/architecrure/v1C4Architecture.md)
 
-1.  **Install Foundry**
+[WIP] So there may be potential changes or deviations from the current configuration.
 
-First run the command below to get foundryup, the Foundry toolchain installer:
+## Deployed Contract
 
-``` bash
-curl -L https://foundry.paradigm.xyz | bash
-```
-
-Then, in a new terminal session or after reloading your PATH, run it to get the latest forge and cast binaries:
-
-``` console
-foundryup
-```
-
-2. **Clone This Repo and install dependencies**
-``` 
-forge install
-```
-3. **Test**
-``` 
-forge test -vvvv
-```
+WIP
+| Contract | Address | Description |
+| -------- | ------- | ----------- |
+| MyContract | `0x1234567890abcdef1234567890abcdef12345678` | This contract handles XYZ functionality. |
+| AnotherContract | `0xabcdef1234567890abcdef1234567890abcdef12` | A contract responsible for ABC operations. |
