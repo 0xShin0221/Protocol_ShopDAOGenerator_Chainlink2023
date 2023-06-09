@@ -27,8 +27,7 @@ contract GovernanceTimeLockTest is Test{
 
 
     function testInit() public {
-        address dao;
-        governanceTimeLock.init(MIN_DELAY, PROPOSERS, EXECUTERS, owner,dao );
+        governanceTimeLock.init(MIN_DELAY, PROPOSERS, EXECUTERS, owner, address(0));
         assertEq(governanceTimeLock.getRoleAdmin(TIMELOCK_ADMIN_ROLE),TIMELOCK_ADMIN_ROLE, "1");
         assertEq(governanceTimeLock.getRoleAdmin(PROPOSER_ROLE),TIMELOCK_ADMIN_ROLE, "2");
         assertEq(governanceTimeLock.getRoleAdmin(EXECUTOR_ROLE),TIMELOCK_ADMIN_ROLE, "3");
@@ -42,8 +41,7 @@ contract GovernanceTimeLockTest is Test{
     }
 
     function testFailInit() public {
-        address dao;
-        governanceTimeLock.init(MIN_DELAY, PROPOSERS, EXECUTERS, owner,dao);
-        governanceTimeLock.init(MIN_DELAY, PROPOSERS, EXECUTERS, owner,dao);
+        governanceTimeLock.init(MIN_DELAY, PROPOSERS, EXECUTERS, owner, address(0));
+        governanceTimeLock.init(MIN_DELAY, PROPOSERS, EXECUTERS, owner, address(0));
     }
 }

@@ -8,7 +8,7 @@ import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
  * @title GovernanceNFTs
  * @notice The GovernanceNFTs is used as votes. 
  */
-contract GovernanceNFTs is ERC721AVotes, AccessControl, ReentrancyGuard {
+ contract GovernanceNFTs is ERC721AVotes, AccessControl, ReentrancyGuard {
     
     ///Constant
     bytes32 public constant BRAND_MANAGER_ROLE = keccak256("BRAND_MANAGER_ROLE");
@@ -70,6 +70,24 @@ contract GovernanceNFTs is ERC721AVotes, AccessControl, ReentrancyGuard {
         if(price * _quantity != msg.value) revert InsufficientFund();
         _safeMint(_to, _quantity, "");
     }
+    
+    /**
+     * @notice The mint function is to mint NFTs.
+     * @dev The address having only the BRAND_MANAGER_ROLE role can execute it. 
+     * @param _to is the address who receives minted NFTs.
+     * @param _quantity is the number of NFTs to mint.
+     */
+     function adminMint(
+        address _to, 
+        uint256 _quantity
+    )
+        external 
+        nonReentrant() 
+        onlyRole(BRAND_MANAGER_ROLE)
+    {
+        if(maximumSupply < _totalMinted() + _quantity ) revert ExceedsMaximumSupply();
+        _safeMint(_to, _quantity, "");
+    }
 
     /**
      * @notice The setShopBaseURI function returns URI.
@@ -122,4 +140,13 @@ contract GovernanceNFTs is ERC721AVotes, AccessControl, ReentrancyGuard {
         return super.supportsInterface(interfaceId);
     }
 
+    function setPrice(uint256 _price) external onlyRole(BRAND_MANAGER_ROLE) {
+        price = _price;
+    }
+
+
+    function withdraw(address _receiver) external  onlyRole(BRAND_MANAGER_ROLE) {
+        (bool _isOk,) = _receiver.call{value:address(this).balance}("");
+        require(_isOk, "Failed");
+    }
 }

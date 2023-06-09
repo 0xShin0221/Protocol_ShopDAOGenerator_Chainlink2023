@@ -6,7 +6,7 @@ import "@openzeppelin/contracts/governance/TimelockController.sol";
  * @title GovernanceTimeLock
  * @notice The GovernanceTimeLock is a timelock controller that makes a specific schedule for owners to execute an approved proposal. 
  */
-contract GovernanceTimeLock is TimelockController {
+ contract GovernanceTimeLock is TimelockController {
     
     /// Error
     error AlreadyInitialized();
@@ -28,13 +28,16 @@ contract GovernanceTimeLock is TimelockController {
      * @param proposers is the list of proposers' and cancellers' accounts.
      * @param executors is the list of executors' accounts.
      * @param owner is an owner account.
+     * @param dao is an current dao address.
      */
     function init(
         uint256 minDelay, 
         address[] memory proposers, 
         address[] memory executors, 
-        address owner
-    ) external 
+        address owner,
+        address dao
+    ) 
+        external 
     {
         if(isInitialized) revert AlreadyInitialized();
         isInitialized = true;
@@ -44,7 +47,7 @@ contract GovernanceTimeLock is TimelockController {
         _setRoleAdmin(CANCELLER_ROLE, TIMELOCK_ADMIN_ROLE);
 
         _setupRole(TIMELOCK_ADMIN_ROLE, address(this));
-
+        _setupRole(PROPOSER_ROLE, dao);
         if (owner != address(0)) {
             _setupRole(TIMELOCK_ADMIN_ROLE, owner);
         }
@@ -60,4 +63,6 @@ contract GovernanceTimeLock is TimelockController {
 
         this.updateDelay(minDelay);
     }
+
+
 }

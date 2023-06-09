@@ -47,6 +47,7 @@ contract Profit is ERC721AQueryable, AccessControl {
         name_ = _name;
         symbol_ = _symbol;
         owner = _owner;
+
         shopDaoBaseURI = _profitURI;
         _grantRole(DEFAULT_ADMIN_ROLE, _owner);
         _grantRole(BRAND_MANAGER_ROLE, _owner);            
@@ -99,4 +100,6 @@ contract Profit is ERC721AQueryable, AccessControl {
     {
         return super.supportsInterface(interfaceId);
     }
+    
+
 }

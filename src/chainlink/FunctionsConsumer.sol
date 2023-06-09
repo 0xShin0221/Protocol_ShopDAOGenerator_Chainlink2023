@@ -11,7 +11,7 @@ import "@openzeppelin/contracts/access/AccessControl.sol";
  * @notice This contract is a demonstration of using Functions.
  * @notice NOT FOR PRODUCTION USE
  */
-contract FunctionsConsumer is FunctionsClient, ConfirmedOwner,AccessControl {
+contract FunctionsConsumer is FunctionsClient, ConfirmedOwner, AccessControl {
   using Functions for Functions.Request;
 
   bytes32 public constant EXECUTOR_ROLE = keccak256("FUNCTION_CONSUMER_EXECUTOR_ROLE");

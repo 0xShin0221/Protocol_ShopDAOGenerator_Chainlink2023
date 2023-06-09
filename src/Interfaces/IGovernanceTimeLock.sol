@@ -12,12 +12,14 @@ interface IGovernanceTimeLock {
      * @param proposers is the list of proposers' and cancellers' accounts.
      * @param executors is the list of executors' accounts.
      * @param owner is an owner account.
+     * @param dao is an current dao address.
      */
     function init(
         uint256 minDelay, 
         address[] memory proposers, 
         address[] memory executors, 
-        address owner
+        address owner,
+        address dao
     ) 
         external;
 }

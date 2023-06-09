@@ -25,7 +25,7 @@ import "./EIP712C.sol";
  *
  * _Available since v4.3._
  */
-abstract contract GovernorC is Context, ERC165, EIP712C, IGovernor, IERC721Receiver, IERC1155Receiver {
+ abstract contract GovernorC is Context, ERC165, EIP712C, IGovernor, IERC721Receiver, IERC1155Receiver {
     using DoubleEndedQueue for DoubleEndedQueue.Bytes32Deque;
     using SafeCast for uint256;
     using Timers for Timers.BlockNumber;
@@ -169,6 +169,7 @@ abstract contract GovernorC is Context, ERC165, EIP712C, IGovernor, IERC721Recei
         }
 
         if (_quorumReached(proposalId) && _voteSucceeded(proposalId)) {
+  
             return ProposalState.Succeeded;
         } else {
             return ProposalState.Defeated;
@@ -288,7 +289,6 @@ abstract contract GovernorC is Context, ERC165, EIP712C, IGovernor, IERC721Recei
         bytes[] memory calldatas,
         string memory description
     ) internal returns (uint256) {
-
 
         uint256 proposalId = hashProposal(targets, values, calldatas, keccak256(bytes(description)));
 
@@ -631,4 +631,6 @@ abstract contract GovernorC is Context, ERC165, EIP712C, IGovernor, IERC721Recei
     ) public virtual override returns (bytes4) {
         return this.onERC1155BatchReceived.selector;
     }
+
+    
 }

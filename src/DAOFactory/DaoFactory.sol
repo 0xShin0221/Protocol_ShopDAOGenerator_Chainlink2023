@@ -9,14 +9,16 @@ import "../Interfaces/IGoveranceNFTs.sol";
 import "../Interfaces/IGovernanceTimeLock.sol";
 import "../Interfaces/IGovernorContract.sol";
 import "../Interfaces/ISortedList.sol";
+
 /** 
  * @title DaoFactory
  * @notice Only brand managers can use DaoFactory to create a new dao. 
  */
-contract DaoFactory is AccessControl, IDaoFactory {
+ contract DaoFactory is AccessControl, IDaoFactory {
 
     ///Constant
     bytes32 public constant BRAND_MANAGER_ROLE = keccak256("BRAND_MANAGER_ROLE");
+    bytes32 public constant PROPOSER_ROLE = keccak256("PROPOSER_ROLE");
 
     /// Immutable
     address public immutable VOTE_ADDRESS; 
@@ -24,6 +26,7 @@ contract DaoFactory is AccessControl, IDaoFactory {
     address public immutable DAO_ADDRESS; 
     ISortedList public immutable sortedProposalList;
     ISortedList public immutable sortedQueueAndExecutionList;
+
     /// Event
     event Create(uint256 indexed id, string name, address dao, address vote, uint256 createdTime);
 
@@ -66,14 +69,18 @@ contract DaoFactory is AccessControl, IDaoFactory {
         external 
         onlyRole(BRAND_MANAGER_ROLE) 
     {
+     
         address vote = Clones.clone(VOTE_ADDRESS);
         address timeLock = Clones.clone(TIMELOCK_ADDRESS);
         address dao = Clones.clone(DAO_ADDRESS);
-        
+   
         AccessControl(address(sortedProposalList)).grantRole(BRAND_MANAGER_ROLE, dao);
         AccessControl(address(sortedQueueAndExecutionList)).grantRole(BRAND_MANAGER_ROLE, dao);
         
+   
+
         daoStorage[id] = (DAO(params.daoName, vote, timeLock, dao, block.timestamp));
+
         IGoveranceNFTs(vote).init(
             params.owner, 
             params.voteMaximumSupply, 
@@ -82,12 +89,15 @@ contract DaoFactory is AccessControl, IDaoFactory {
             params.voteSymbol, 
             params.voteURI
         );
+
         IGovernanceTimeLock(timeLock).init(
             params.timelockMinDelay, 
             proposerList, 
             executorList, 
-            params.owner
+            params.owner,
+            dao
         );
+
         IGovernorContract(dao).init(
             params.daoName, 
             IVotes(vote), 
@@ -101,6 +111,7 @@ contract DaoFactory is AccessControl, IDaoFactory {
         );
 
         emit Create(id++, params.daoName, dao, vote, block.timestamp);
+   
     }
 
     /**

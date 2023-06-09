@@ -8,8 +8,8 @@ import "../Interfaces/ISalesDistributor.sol";
 contract SalesDistributor is Ownable, ISalesDistributor, AccessControl {
     
     /// Immutable
-    address public immutable USDC_ADDRESS;
-    IERC20 public immutable USDC;
+    address public immutable USDT_ADDRESS;
+    IERC20 public immutable USDT;
 
     /// Constant
     bytes32 public constant BRAND_MANAGER_ROLE = keccak256("BRAND_MANAGER_ROLE");
@@ -28,10 +28,10 @@ contract SalesDistributor is Ownable, ISalesDistributor, AccessControl {
     }
 
     // salesDistributorClient is executed by automation of ChainlinkFunctions.
-    constructor(address _salesDistributorClient, address _usdcAddress) {
+    constructor(address _salesDistributorClient, address _usdtAddress) {
         salesDistributorClient = _salesDistributorClient;
-        USDC_ADDRESS = _usdcAddress;
-        USDC = IERC20(USDC_ADDRESS);
+        USDT_ADDRESS = _usdtAddress;
+        USDT = IERC20(USDT_ADDRESS);
         _grantRole(DEFAULT_ADMIN_ROLE, msg.sender);
         _grantRole(BRAND_MANAGER_ROLE, msg.sender);
     }
@@ -53,13 +53,13 @@ contract SalesDistributor is Ownable, ISalesDistributor, AccessControl {
         totalDistributedSales[distributionDetails.nftAddress] += distributionDetails.totalSale;
         totalDistributedProfit[distributionDetails.nftAddress] += distributionDetails.totalProfit;
         isSoldByNFTaddress[distributionDetails.nftAddress] = true; 
-        USDC.transferFrom(msg.sender, address(this), distributionDetails.totalProfit);
+        USDT.transferFrom(msg.sender, address(this), distributionDetails.totalProfit);
         emit ProfitsDistributed(distributionDetails.nftAddress, distributionDetails.orderId, distributionDetails.totalSale, distributionDetails.totalProfit);
     }
     
     function claim(address _nftAddress) external {
         if(!isSoldByNFTaddress[_nftAddress]) revert ItemIsNotSold();
-        if(USDC.balanceOf(address(this)) < (totalDistributedProfit[_nftAddress] - totalClaimedToken[_nftAddress])) revert InsufficientBalance();
+        if(USDT.balanceOf(address(this)) < (totalDistributedProfit[_nftAddress] - totalClaimedToken[_nftAddress])) revert InsufficientBalance();
         IERC721AQueryable nft = IERC721AQueryable(_nftAddress);
         uint256 totalNumOfNft = nft.totalSupply();
         uint256[] memory ownedNFTListOf = nft.tokensOfOwner(msg.sender);
@@ -79,7 +79,7 @@ contract SalesDistributor is Ownable, ISalesDistributor, AccessControl {
         uint256 totalUserProfitsToClaim = (totalDistributedProfit[_nftAddress] * totalNFTPecentageOfUserInBPS) / BPS; 
         userClaimedProfits[_nftAddress][msg.sender] += totalUserProfitsToClaim;
         totalClaimedToken[_nftAddress] += totalUserProfitsToClaim;
-        USDC.transfer(msg.sender, totalUserProfitsToClaim);
+        USDT.transfer(msg.sender, totalUserProfitsToClaim);
         emit Claim(msg.sender, totalUserProfitsToClaim);
     }
 
@@ -112,8 +112,8 @@ contract SalesDistributor is Ownable, ISalesDistributor, AccessControl {
         external 
         onlyRole(BRAND_MANAGER_ROLE)  
     {
-       uint256 currentUSDCByNFT = totalDistributedProfit[_nftAddress] - totalClaimedToken[_nftAddress];
-       USDC.transfer(msg.sender, currentUSDCByNFT);
+       uint256 currentUSDTByNFT = totalDistributedProfit[_nftAddress] - totalClaimedToken[_nftAddress];
+       USDT.transfer(msg.sender, currentUSDTByNFT);
     }
 
     //　This function is not needed in production. For decentralization autonomous

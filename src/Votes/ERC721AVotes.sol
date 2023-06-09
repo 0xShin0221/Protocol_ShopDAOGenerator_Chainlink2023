@@ -4,7 +4,6 @@ pragma solidity ^0.8.9;
 import "ERC721A/ERC721A.sol";
 import "./VotesC.sol";
 
-
 abstract contract ERC721AVotes is ERC721A, VotesC {
     
     function _afterTokenTransfers(
