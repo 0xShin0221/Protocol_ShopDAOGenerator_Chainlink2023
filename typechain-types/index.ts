@@ -30,18 +30,12 @@ export type { AggregatorV3Interface } from "./lib/chainlink/contracts/src/v0.7/i
 export { AggregatorV3Interface__factory } from "./factories/lib/chainlink/contracts/src/v0.7/interfaces/AggregatorV3Interface__factory";
 export type { MockV3Aggregator } from "./lib/chainlink/contracts/src/v0.7/tests/MockV3Aggregator";
 export { MockV3Aggregator__factory } from "./factories/lib/chainlink/contracts/src/v0.7/tests/MockV3Aggregator__factory";
-export type { AutomationBase } from "./lib/chainlink/contracts/src/v0.8/automation/AutomationBase";
-export { AutomationBase__factory } from "./factories/lib/chainlink/contracts/src/v0.8/automation/AutomationBase__factory";
-export type { AutomationCompatible } from "./lib/chainlink/contracts/src/v0.8/automation/AutomationCompatible";
-export { AutomationCompatible__factory } from "./factories/lib/chainlink/contracts/src/v0.8/automation/AutomationCompatible__factory";
 export type { ConfirmedOwner } from "./lib/chainlink/contracts/src/v0.8/ConfirmedOwner";
 export { ConfirmedOwner__factory } from "./factories/lib/chainlink/contracts/src/v0.8/ConfirmedOwner__factory";
 export type { ConfirmedOwnerWithProposal } from "./lib/chainlink/contracts/src/v0.8/ConfirmedOwnerWithProposal";
 export { ConfirmedOwnerWithProposal__factory } from "./factories/lib/chainlink/contracts/src/v0.8/ConfirmedOwnerWithProposal__factory";
 export type { OCR2Abstract } from "./lib/chainlink/contracts/src/v0.8/dev/ocr2/OCR2Abstract";
 export { OCR2Abstract__factory } from "./factories/lib/chainlink/contracts/src/v0.8/dev/ocr2/OCR2Abstract__factory";
-export type { AutomationCompatibleInterface } from "./lib/chainlink/contracts/src/v0.8/interfaces/automation/AutomationCompatibleInterface";
-export { AutomationCompatibleInterface__factory } from "./factories/lib/chainlink/contracts/src/v0.8/interfaces/automation/AutomationCompatibleInterface__factory";
 export type { ERC677ReceiverInterface } from "./lib/chainlink/contracts/src/v0.8/interfaces/ERC677ReceiverInterface";
 export { ERC677ReceiverInterface__factory } from "./factories/lib/chainlink/contracts/src/v0.8/interfaces/ERC677ReceiverInterface__factory";
 export type { LinkTokenInterface } from "./lib/chainlink/contracts/src/v0.8/interfaces/LinkTokenInterface";
