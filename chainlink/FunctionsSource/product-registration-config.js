@@ -49,7 +49,11 @@ const requestConfig = {
     "[{'option1':'Blue','option2':'155'},{'option1':'Black','option2':'159'}]",
     "[{'name':'Color','values':['Blue','Black']},{'name':'Size','values':['155','159']}]",
     "[{'src':'http://example.com/rails_logo.gif'}]",
-    "[{'sku':'skusample','cost':'100'}]",
+    // "[{'sku':'skusample','cost':'100'}]",
+    "1800",
+    "shopdao-generator-dev-with-test-data",
+    "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",
+    "2000",
   ],
   // expected type of the returned value
   expectedReturnType: ReturnType.string,

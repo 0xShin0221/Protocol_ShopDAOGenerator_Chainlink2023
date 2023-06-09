@@ -1,11 +1,14 @@
 const endpoint = args[0];
 const baseApiUrl = args[1];
 const productProfitRightNFTAddress = args[2];
-const productJsonString = args[3];
+const product = args[3];
 const productVariantsJsonString = args[4];
 const productOptionsJsonString = args[5];
 const productImagesJsonString = args[6];
-const productInitialInventories = args[7];
+// const productInitialInventories = args[7];
+const cost = args[7];
+const storeUrl = args[8];
+const price = args[9];
 
 // if (secrets.apiKey === undefined) {
 //   throw new Error(
@@ -21,11 +24,14 @@ const salesDistributionRequest = await Functions.makeHttpRequest({
   },
   data: {
     productProfitRightNFTAddress,
-    productJsonString,
+    product,
     productVariantsJsonString,
     productOptionsJsonString,
     productImagesJsonString,
-    productInitialInventories,
+    // productInitialInventories,
+    cost,
+    storeUrl,
+    price,
   },
 });
 const salesDistributionResponse = await salesDistributionRequest;
