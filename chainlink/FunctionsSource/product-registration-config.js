@@ -52,7 +52,6 @@ const requestConfig = {
     // "[{'sku':'skusample','cost':'100'}]",
     "1800",
     "shopdao-generator-dev-with-test-data",
-    "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",
     "2000",
   ],
   // expected type of the returned value
